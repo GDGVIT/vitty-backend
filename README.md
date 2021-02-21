@@ -22,7 +22,8 @@
 
 <br>
 
-<!-- ## Dependencies
+<!--
+## Dependencies
  - < dependency >
  - < dependency >
 
