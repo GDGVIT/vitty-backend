@@ -2,8 +2,8 @@
 <a href="https://dscvit.com">
 	<img src="https://user-images.githubusercontent.com/30529572/92081025-fabe6f00-edb1-11ea-9169-4a8a61a5dd45.png" alt="DSC VIT"/>
 </a>
-	<h2 align="center"> < Insert Project Title Here > </h2>
-	<h4 align="center"> < Insert Project Description Here > <h4>
+	<h2 align="center"> Vitty Backend</h2>
+	<h4 align="center"> An application that extracts and reads data from a timetable and sends push notifications to user to attend scheduled classes.</h4>
 </p>
 
 ---
@@ -15,14 +15,19 @@
 
 
 ## Features
-- [ ]  < feature >
-- [ ]  < feature >
-- [ ]  < feature >
-- [ ]  < feature >
+- [ ]  Extracts timetable from the image
+- [ ]  Sends push notification to the user
+<!-- - [ ]  < feature >
+- [ ]  < feature > -->
 
 <br>
 
+<<<<<<< HEAD
+<!-- ## Dependencies
+=======
+<!--
 ## Dependencies
+>>>>>>> a5fb32963fe78b31d2541cea9d44401317edf9ed
  - < dependency >
  - < dependency >
 
@@ -40,21 +45,21 @@
 ```bash
 < insert code >
 ```
-
+-->
 ## Contributors
 
 <table>
 	<tr align="center">
 		<td>
-		John Doe
+		Vishesh Bansal
 		<p align="center">
-			<img src = "https://dscvit.com/images/dsc-logo-square.svg" width="150" height="150" alt="Your Name Here (Insert Your Image Link In Src">
+			<img src = "https://avatars.githubusercontent.com/u/22132836" width="150" height="150" alt="Your Name Here (Insert Your Image Link In Src">
 		</p>
 			<p align="center">
-				<a href = "https://github.com/person1">
+				<a href = "https://github.com/VisheshBansal">
 					<img src = "http://www.iconninja.com/files/241/825/211/round-collaboration-social-github-code-circle-network-icon.svg" width="36" height = "36" alt="GitHub"/>
 				</a>
-				<a href = "https://www.linkedin.com/in/person1">
+				<a href = "https://www.linkedin.com/in/bansalvishesh" target="_blank">
 					<img src = "http://www.iconninja.com/files/863/607/751/network-linkedin-social-connection-circular-circle-media-icon.svg" width="36" height="36" alt="LinkedIn"/>
 				</a>
 			</p>
