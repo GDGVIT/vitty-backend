@@ -1,9 +1,8 @@
 import os
-from fastapi import FastAPI
+
 import cv2
-import numpy as np
-import uvicorn
-from utils import api
+
+
 # import imutils
 
 # This only works if there's only one table on a page
@@ -105,7 +104,7 @@ def table_detection(image):
     for c in cnts:
         cv2.drawContours(image, [c], -1, (36, 255, 12), 2)
     payload_image = os.path.join("data", "payload.png")
-    cv2.imwrite(payload_image,image)
+    cv2.imwrite(payload_image, image)
     return payload_image
 
 
@@ -168,7 +167,7 @@ if __name__ == "__main__":
     out_file = os.path.join("data", "out.png")
 
     img = cv2.imread(os.path.join(in_file), cv2.IMREAD_COLOR)
-    out_img=cv2.imread(os.path.join(out_file), cv2.IMREAD_COLOR)
+    out_img = cv2.imread(os.path.join(out_file), cv2.IMREAD_COLOR)
     pre_processed = pre_process_image(img, pre_file)
     # text_boxes = find_text_boxes(pre_processed)
     # cells = find_table_in_boxes(text_boxes)

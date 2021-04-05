@@ -1,17 +1,14 @@
-import os
-import cv2
 import requests
 
 
 def ocr_space_file(
-    filename,
-    overlay=True,
-    api_key= "your_api_key_here",
-    language="eng",
-    detectOrientation=True,
-    scale=True,
+        filename,
+        overlay=True,
+        api_key="your_api_key_here",
+        language="eng",
+        detectOrientation=True,
+        scale=True,
 ):
-
     payload = {
         "isOverlayRequired": overlay,
         "apikey": api_key,
