@@ -10,6 +10,10 @@ opencv-python = "==4.5.1.48"
 fastapi = "*"
 uvicorn = "*"
 requests = "*"
+pillow = "*"
+python-multipart = "*"
+pylint = "*"
+pep8 = "*"
 
 [requires]
 python_version = "3.8"
