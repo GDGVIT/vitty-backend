@@ -1,9 +1,8 @@
 import json
 import os
+
 import cv2
 from utils.api import ocr_space_file
-
-
 # import imutils
 
 # This only works if there's only one table on a page
