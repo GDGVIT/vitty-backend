@@ -1,8 +1,6 @@
 import json
 import os
-
 import cv2
-
 from utils.api import ocr_space_file
 
 
