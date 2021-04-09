@@ -1,10 +1,10 @@
-""""Import necessary modules"""
+'''Import necessary modules'''
 import cv2
-from fastapi import FastAPI, File, UploadFile
 import numpy as np
 import uvicorn
-from tableDetection import detect_table
+from fastapi import FastAPI, File, UploadFile
 
+from tableDetection import detect_table
 
 app = FastAPI()
 
