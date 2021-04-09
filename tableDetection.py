@@ -3,6 +3,7 @@ import os
 
 import cv2
 from utils.api import ocr_space_file
+
 # import imutils
 
 # This only works if there's only one table on a page
@@ -79,9 +80,7 @@ def detect_table(image):
 
     final_messages = []
 
-    test_file = ocr_space_file(
-        filename=out_file, overlay=True, language="eng"
-    )
+    test_file = ocr_space_file(filename=out_file, overlay=True, language="eng")
 
     test_file = json.loads(test_file)
     message = test_file["ParsedResults"][0]["ParsedText"]
