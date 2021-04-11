@@ -15,6 +15,7 @@ python-multipart = "*"
 pylint = "*"
 pep8 = "*"
 black = "*"
+pytesseract = "*"
 
 [requires]
 python_version = "3.8"
