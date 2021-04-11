@@ -11,7 +11,7 @@ import pytesseract as pt
 def get_venue(venue):
     """Function to find venue for classes"""
     term = re.findall(
-        r"[TT,SJT,SMVG,$JT,$MVG,SMVGO,PLB]{2,5}[0-9]{3,5}[A-Z]{0,1}\b", venue
+        r"[TT,SJT,SJTG,SMVG,$JT,$MVG,SMVGO,PLB]{2,5}[0-9]{2,5}[A-Z]{0,1}\b", venue
     )
     # Fix venue errors during OCR runtime
     for i in term:
