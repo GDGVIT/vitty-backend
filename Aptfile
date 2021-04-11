@@ -1,0 +1,4 @@
+:repo:deb http://cz.archive.ubuntu.com/ubuntu focal main universe
+tesseract-ocr
+libtesseract-dev
+python3-opencv
