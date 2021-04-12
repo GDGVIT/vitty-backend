@@ -15,7 +15,7 @@
 
 
 ## Features
-- [ ]  Extracts timetable from the image
+- [X]  Extracts timetable from the image
 - [ ]  Sends push notification to the user
 <!-- - [ ]  < feature >
 - [ ]  < feature > -->
