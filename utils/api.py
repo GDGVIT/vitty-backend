@@ -4,12 +4,12 @@ import requests
 
 
 def ocr_space_file(
-        filename,
-        overlay=True,
-        api_key="YOUR_API_KEY",
-        language="eng",
-        detectOrientation=True,
-        scale=True,
+    filename,
+    overlay=True,
+    api_key="YOUR_API_KEY",
+    language="eng",
+    detectOrientation=True,
+    scale=True,
 ):
     payload = {
         "isOverlayRequired": overlay,
@@ -22,6 +22,6 @@ def ocr_space_file(
 
     with open(filename, "rb") as f:
         r = requests.post(
-            "https://apipro2.ocr.space/parse/image", files={filename: f}, data=payload,
+            "https://apipro3.ocr.space/parse/image", files={filename: f}, data=payload
         )
     return r.content.decode()
