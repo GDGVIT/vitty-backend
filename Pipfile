@@ -1,0 +1,22 @@
+[[source]]
+name = "pypi"
+url = "https://pypi.org/simple"
+verify_ssl = true
+
+[dev-packages]
+
+[packages]
+opencv-python = "==4.5.1.48"
+fastapi = "*"
+uvicorn = "*"
+requests = "*"
+pillow = "*"
+python-multipart = "*"
+pylint = "*"
+pep8 = "*"
+black = "*"
+pytesseract = "*"
+imutils = "*"
+
+[requires]
+python_version = "3.8"
