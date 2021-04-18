@@ -18,7 +18,7 @@ async def testing():
 @app.post("/uploadfile/")
 async def predict_api(file: UploadFile = File(...)):
     """Upload timetable"""
-    extension = file.filename.split(".")[-1] in ("jpg", "jpeg", "png", "JPG")
+    extension = file.filename.split(".")[-1] in ("jpg", "jpeg", "png", "JPG", "PNG")
     if not extension:
         raise HTTPException(
             status_code=400, detail="File must be an image, in jpg or png format!"
