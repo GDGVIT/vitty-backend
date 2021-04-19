@@ -64,7 +64,11 @@ def value_error_handler(param):
 def fetch_data(image):
     """Function to fetch timetable from image"""
     # Gel all pixels in the image - where BGR = (51,255,204), OpenCV colors order is BGR not RGB (green color)
-    global course_name_raw
+    global slot, course_name, course_name_raw
+    slot = None
+    course_name_raw = None
+    course_name = None
+    course_type = None
     gray = np.all(image == (51, 255, 204), 2)  # gray is a logical matrix with True
     # Convert logical matrix to uint8
     gray = gray.astype(np.uint8) * 255
@@ -94,7 +98,7 @@ def fetch_data(image):
         # text = test_file["ParsedResults"][0]["ParsedText"]
         text = re.sub("[‘]", "", text)
         text = re.sub("[\[(){}<>‘\]|/]", "J", text)
-        # text.upper()
+
         try:
             slot = re.findall(r"^[A-Za-z0-9]{1,3}[0-9A-Za-z]{0,2}\b", text)
             print("SLOT:", slot)
