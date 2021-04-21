@@ -3,8 +3,8 @@
 import cv2
 import numpy as np
 import uvicorn
-from fastapi import FastAPI, File, HTTPException, UploadFile
-from tableDetection import fetch_data
+from fastapi import FastAPI, File, Form, HTTPException, UploadFile
+from tableDetection import fetch_data, fetch_text_timetable
 
 app = FastAPI()
 
@@ -28,6 +28,12 @@ async def predict_api(file: UploadFile = File(...)):
     nparr = np.fromstring(image, np.uint8)
     img = cv2.imdecode(nparr, cv2.IMREAD_COLOR)
     data = fetch_data(img)
+    return data
+
+
+@app.post("/uploadtext/")
+async def get_timetable(request: str = Form(...)):
+    data = fetch_text_timetable(request)
     return data
 
 
