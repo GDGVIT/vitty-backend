@@ -86,12 +86,8 @@ def fetch_data(image):
                 if 211 <= image[i][j][1] <= 255:
                     if 170 <= image[i][j][2] <= 220:
                         ex.append(True)
-                    else:
-                        ex.append(False)
-                else:
-                    ex.append(False)
-            else:
-                ex.append(False)
+                        continue
+            ex.append(False)
         ex = np.asarray(ex)
         gray.append(ex)
 
@@ -122,15 +118,21 @@ def fetch_data(image):
         cv2.imwrite("dump1.png", crop)
         text = pt.image_to_string(crop)
         text = re.sub(" ", "", text)
-        text = re.sub("[‘;:]", "", text)
-        text = re.sub("[\[()\\\{}<>‘\]|/]", "J", text)
+        text = re.sub(
+            "[‘;:]", "", text
+        )  # cleaning ocr text by removing these special characters that cause regex errors
+        text = re.sub(
+            "[\[()\\\{}<>‘\]|/]", "J", text
+        )  # replace instances where J of "SJT" detected as brackets and special characters
 
         try:
             slot = None
             course_name_raw = None
             course_name = None
             course_type = None
-            slot = re.findall(r"^[A-Za-z0-9]{1,3}[0-9A-Za-z]{0,2}\b", text)
+            slot = re.findall(
+                r"^[A-Za-z0-9]{1,3}[0-9A-Za-z]{0,2}\b", text
+            )  # getting slot from text
             slot = slot[0]
             slot = fx(slot)
             if slot == None and text != "\f":
@@ -151,7 +153,9 @@ def fetch_data(image):
             elif len(course_name_raw) == 0 or course_name_raw is None:
                 course_name = None
 
-            course_code = re.findall(r"[ETH,SS,ELA,LO]{2,3}\b", text)
+            course_code = re.findall(
+                r"[ETH,SS,ELA,LO]{2,3}\b", text
+            )  # getting course code from regex
 
             course_type = "Lab" if course_code[0] in ("ELA", "LO") else "Theory"
 
@@ -183,7 +187,6 @@ def fetch_data(image):
             }
             print(slot, course_name, course_type, venue)
             data.append(slot_data)
-            del (slot, course_name_raw, course_type, venue)
         cv2.imwrite("gray.png", gray)
 
         write_json(data)
