@@ -9,7 +9,7 @@ from tableDetection import fetch_data, fetch_text_timetable
 app = FastAPI()
 
 
-@app.get("/test")
+@app.get("/")
 async def testing():
     """Check if server is working"""
     return "Ok! Working!"

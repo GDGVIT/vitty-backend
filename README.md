@@ -16,35 +16,38 @@
 
 ## Features
 - [X]  Extracts timetable from the image
-- [ ]  Sends push notification to the user
+- [X]  Manually copy and paste timetable
 <!-- - [ ]  < feature >
 - [ ]  < feature > -->
 
 <br>
 
-<!-- ## Dependencies
-=======
-<!--
 ## Dependencies
->>>>>>> a5fb32963fe78b31d2541cea9d44401317edf9ed
- - < dependency >
- - < dependency >
+
+- FastAPI
+- Numpy
+- OpenCV
+- Pytesseract
+- Uvicorn
 
 
 ## Running
 
-
-< directions to install > 
+### Directions to Install
 ```bash
-< insert code >
+pipenv install
+pipenv shell
+uvicorn main:app
 ```
 
-< directions to execute >
+### Directions to Execute
 
 ```bash
-< insert code >
+docker build .
+docker run -p 80:8000 -d <IMAGE_NAME>
 ```
--->
+<br>
+
 ## Contributors
 
 <table>
