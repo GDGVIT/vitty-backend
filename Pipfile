@@ -17,6 +17,7 @@ pep8 = "*"
 black = "*"
 pytesseract = "*"
 imutils = "*"
+starlette = "*"
 
 [requires]
 python_version = "3.8"
