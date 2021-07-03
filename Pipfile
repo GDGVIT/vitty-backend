@@ -16,7 +16,7 @@ pylint = "*"
 pep8 = "*"
 pytesseract = "*"
 imutils = "*"
-gunicorn = "*"
+starlette = "*"
 
 [requires]
 python_version = "3.9"
