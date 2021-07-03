@@ -11,10 +11,15 @@ app = FastAPI()
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # Allows all origins
+    allow_origins=[
+        "http://127.0.0.1:8000",
+        "http://0.0.0.0:8000",
+        "http://vittyapi.dscvit.com",
+        "https://vittyapi.dscvit.com",
+    ],  # Allows all origins
     allow_credentials=True,
-    allow_methods=["*"],  # Allows all methods
-    allow_headers=["*"],  # Allows all headers
+    allow_methods=["GET", "POST"],
+    allow_headers=["*"],
 )
 
 
@@ -47,4 +52,4 @@ async def get_timetable(request: str = Form(...)):
 
 
 if __name__ == "__main__":
-    uvicorn.run(app, debug=True)
+    uvicorn.run(app)
