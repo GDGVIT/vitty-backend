@@ -16,7 +16,7 @@ RUN apt install -y python3-opencv
 COPY . /app
 
 RUN pip3 install pytesseract
-RUN pip3 install fastapi uvicorn opencv-python starlette
+RUN pip3 install fastapi uvicorn opencv-python
 RUN pipenv install
 RUN pip3 install python-multipart
 

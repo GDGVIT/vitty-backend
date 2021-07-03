@@ -14,10 +14,9 @@ pillow = "*"
 python-multipart = "*"
 pylint = "*"
 pep8 = "*"
-black = "*"
 pytesseract = "*"
 imutils = "*"
-starlette = "*"
+gunicorn = "*"
 
 [requires]
-python_version = "3.8"
+python_version = "3.9"
