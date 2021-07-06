@@ -1,0 +1,26 @@
+defaultEntryPoints = ["http", "https"]
+[entryPoints]
+  [entryPoints.http]
+    address = ":80"
+      [entryPoints.http.redirect]
+        entryPoint = "https"
+  [entryPoints.https]
+    address = ":443"
+      [entryPoints.https.tls]
+
+
+[acme]
+email = "vishesh.bansal@gmail.com"
+storage = "acme.json"
+entryPoint = "https"
+onHostRule = true
+  [acme.httpChallenge]
+  entryPoint = "http"
+[[acme.domains]]
+   main = "dscvit.com"
+   sans = ["vittyapi.dscvit.com"]
+
+[docker]
+domain = "vittyapi.dscvit.com"
+watch = true
+network = "web"
