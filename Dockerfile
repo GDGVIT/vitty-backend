@@ -18,7 +18,8 @@ COPY . /app
 RUN pip3 install Image Pillow
 RUN pip3 install pytesseract
 RUN pip3 install fastapi uvicorn opencv-python starlette
-RUN pipenv install
+RUN apt install -y python3
+RUN pip3 install -r requirements.txt
 RUN pip3 install python-multipart
 
 CMD ["uvicorn","main:app","--reload","--port","8000","--host","0.0.0.0"]
