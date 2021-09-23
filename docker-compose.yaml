@@ -1,7 +1,6 @@
 version: '3.7'
 services:
   web:
-    env_file: ./.env
     build: .
     image: vitty
     ports:
