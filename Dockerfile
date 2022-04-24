@@ -9,15 +9,15 @@ RUN apt install -y libleptonica-dev
 ENV TZ=Asia/Kolkata
 RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
 
-RUN apt install -y pipenv tesseract-ocr
-RUN apt install -y libtesseract-dev
-RUN apt install -y python3-opencv
+#RUN apt install -y pipenv tesseract-ocr
+#RUN apt install -y libtesseract-dev
+#RUN apt install -y python3-opencv
 
 COPY . /app
 
-RUN pip3 install Image Pillow
-RUN pip3 install pytesseract
-RUN pip3 install fastapi uvicorn opencv-python starlette
+#RUN pip3 install Image Pillow
+#RUN pip3 install pytesseract
+RUN pip3 install fastapi uvicorn starlette
 RUN apt install -y python3
 RUN pip3 install -r requirements.txt
 RUN pip3 install python-multipart
