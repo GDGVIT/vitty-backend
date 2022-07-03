@@ -1,7 +1,5 @@
 """Import necessary modules"""
 
-import cv2
-import numpy as np
 import uvicorn
 from fastapi import FastAPI, File, Form, HTTPException, UploadFile
 from starlette.middleware.cors import CORSMiddleware
@@ -18,7 +16,7 @@ app.add_middleware(
         "https://vittyapi.dscvit.com",
         "https://vitty.pages.dev",
         "https://vitty.dscvit.com",
-        "http://vitty.dscvit.com"
+        "http://vitty.dscvit.com",
     ],  # Allows all origins
     allow_credentials=True,
     allow_methods=["GET", "POST"],
