@@ -26,7 +26,6 @@ app.add_middleware(
 )
 
 
-
 @app.get("/")
 async def testing():
     """Check if server is working"""

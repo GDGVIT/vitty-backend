@@ -3,13 +3,6 @@
 import json
 import re
 
-# import cv2
-import numpy as np
-
-# import pytesseract as pt
-from utils.difFixer import fix_string as fx
-from utils.difFixer import rreplace as rep
-
 
 def fetch_text_timetable(text):
     data, slots = [], []
