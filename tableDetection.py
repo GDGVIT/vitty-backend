@@ -3,18 +3,11 @@
 import json
 import re
 
-# import cv2
-import numpy as np
-
-# import pytesseract as pt
-from utils.difFixer import fix_string as fx
-from utils.difFixer import rreplace as rep
-
 
 def fetch_text_timetable(text):
     data, slots = [], []
     slots += re.findall(
-        r"[A-Z]{1,3}[0-9]{1,2}[\D]{1}[A-Z]{3,4}[0-9]{3,4}[A-Z]{0,1}[\D]{1}[A-Z]{2,3}[\D]{1}[A-Z]{2,6}[0-9]{2,4}[A-Za-z]{0,1}[\D]{1}[A-Z]{3}[0-9]{0,2}",
+        r"[A-Z]{1,3}[0-9]{1,2}[\D]{1}[A-Z]{3,4}[0-9]{3,4}[A-Z]{0,1}[\D]{1}[A-Z]{2,3}[\D]{1}[A-Z]{2,6}[0-9]{2,4}[A-Za-z]{0,1}[\D]{1}[A-Z]{2,4}[0-9]{0,3}",
         text,
     )
     for single_slot in slots:
