@@ -6,7 +6,7 @@ from starlette.middleware.cors import CORSMiddleware
 from tableDetection import fetch_text_timetable
 
 app = FastAPI()
-
+port = os.environ.get('PORT')
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[
@@ -37,4 +37,4 @@ async def get_timetable(request: str = Form(...)):
 
 
 if __name__ == "__main__":
-    uvicorn.run(app)
+    uvicorn.run(app,port=port)
