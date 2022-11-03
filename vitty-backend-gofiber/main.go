@@ -38,7 +38,6 @@ type TimetableResponse struct {
 }
 
 type TimetableResponseV2 struct {
-	ParsedData     string `json:"Parsed_Data"`
 	Slot           string `json:"Slot"`
 	CourseName     string `json:"Course_Name"`
 	CourseFullName string `json:"Course_Full_Name"`
@@ -134,7 +133,6 @@ func getTimetableV2(c *fiber.Ctx) error {
 			if slots[i][0] != "NIL" {
 				for _, slot := range slots[i] {
 					var obj TimetableResponseV2
-					obj.ParsedData = "NIL"
 					obj.Slot = slot
 					obj.CourseName = code[i]
 					obj.CourseFullName = name[i]
