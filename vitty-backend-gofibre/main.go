@@ -1,21 +1,30 @@
 package main
 
 import (
-	"log"
 	"regexp"
 	"strings"
 
-	"github.com/gofiber/fiber"
+	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v2/middleware/cors"
+	"github.com/gofiber/fiber/v2/middleware/logger"
 )
 
 func main() {
 	app := fiber.New()
 
+	app.Use(logger.New())
+	app.Use(cors.New(cors.Config{
+		AllowHeaders:     "Origin, Content-Type, Accept, Content-Length, Accept-Language, Accept-Encoding, Connection, Access-Control-Allow-Origin",
+		AllowOrigins:     "http://127.0.0.1:8000, http://0.0.0.0:8000, http://vittyapi.dscvit.com, https://vittyapi.dscvit.com, https://vitty.pages.dev, https://vitty.dscvit.com, http://vitty.dscvit.com,",
+		AllowCredentials: true,
+		AllowMethods:     "GET,POST",
+	}))
+
 	app.Get("/", root)
 	app.Post("/uploadtext/", getTimetable)
 	app.Post("/v2/uploadtext/", getTimetableV2)
 
-	log.Fatal(app.Listen(8080))
+	app.Listen(":8080")
 }
 
 // Response Structs
@@ -48,11 +57,11 @@ func errorMessage(message string) ErrorMessage {
 	return Error
 }
 
-func root(c *fiber.Ctx) {
-	c.SendString("Ok! Working!")
+func root(c *fiber.Ctx) error {
+	return c.SendString("Ok! Working!")
 }
 
-func getTimetable(c *fiber.Ctx) {
+func getTimetable(c *fiber.Ctx) error {
 	data := c.FormValue("request")
 
 	re := regexp.MustCompile(`[A-Z]{1,3}[0-9]{1,2}[\D]{1}[A-Z]{3,4}[0-9]{3,4}[A-Z]{0,1}[\D]{1}[A-Z]{2,3}[\D]{1}[A-Z]{2,6}[0-9]{2,4}[A-Za-z]{0,1}[\D]{1}[A-Z]{2,4}[0-9]{0,3}`)
@@ -79,11 +88,15 @@ func getTimetable(c *fiber.Ctx) {
 		timetable = append(timetable, obj)
 	}
 
+	if len(timetable) == 0 || timetable == nil {
+		return c.Status(400).JSON(errorMessage("No Timetable Found!"))
+	}
+
 	response["Slots"] = timetable
-	c.Status(fiber.StatusAccepted).JSON(response)
+	return c.Status(fiber.StatusAccepted).JSON(response)
 }
 
-func getTimetableV2(c *fiber.Ctx) {
+func getTimetableV2(c *fiber.Ctx) error {
 	data := c.FormValue("request")
 	data = strings.ReplaceAll(data, "\r", "")
 
@@ -135,13 +148,17 @@ func getTimetableV2(c *fiber.Ctx) {
 				}
 			}
 		}
+
+		if len(timetable) == 0 {
+			goto throwerror
+		}
+
 		response["Slots"] = timetable
-		c.Status(fiber.StatusAccepted).JSON(response)
-		return
+		return c.Status(fiber.StatusAccepted).JSON(response)
 	} else {
 		goto throwerror
 	}
 
 throwerror:
-	c.Status(fiber.StatusBadRequest).JSON(errorMessage("Invalid Data"))
+	return getTimetable(c)
 }
