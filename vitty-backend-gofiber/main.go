@@ -109,12 +109,10 @@ func getTimetableV2(c *fiber.Ctx) error {
 	for _, c := range re {
 		split := strings.Split(c[:len(c)-1], " - ")
 
-		if len(split) != 2 {
-			goto throwerror
+		if len(split) == 2 {
+			code = append(code, split[0])
+			name = append(name, split[1])
 		}
-		code = append(code, split[0])
-		name = append(name, split[1])
-
 	}
 
 	re = regexp.MustCompile("\n{3}[A-Z]+[0-9]{1,3}.+\n|\n{3}NIL\n").FindAllString(data, -1)
