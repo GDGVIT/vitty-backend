@@ -1,4 +1,4 @@
-module vitty-backend-gofiber
+module github.com/vitty-backend/vitty-backend-gofiber
 
 go 1.19
 
