@@ -1,7 +1,10 @@
 .env
 .idea
 .vscode
+.db
 data
+vitty-backend-gofiber
+test/
 __pycache__
  __pycache__/
- utils/__pycache__/
+utils/__pycache__/
