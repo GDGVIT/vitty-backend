@@ -1,0 +1,37 @@
+version: '3'
+
+services:
+  vitty-api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: vitty-api
+    ports:
+      - 80:3000
+    volumes:
+      - ./:/user/src/app
+    env_file:
+      - ./vitty-backend-api/.env/.production
+    depends_on:
+      - postgres
+    networks:
+      - vitty-network
+    restart: always
+
+  postgres:
+    image: postgres
+    container_name: vitty-postgres
+    volumes:
+      - postgres-db:/var/lib/postgresql/data
+    env_file:
+      - ./vitty-backend-api/.env/.production
+    ports:
+      - 5432:5432
+    networks:
+      - vitty-network
+      
+volumes:
+  postgres-db:
+
+networks:
+  vitty-network:
