@@ -3,8 +3,5 @@
 .vscode
 .db
 data
-vitty-backend-gofiber
+credentials
 test/
-__pycache__
- __pycache__/
-utils/__pycache__/
