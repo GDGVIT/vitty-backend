@@ -6,7 +6,7 @@ set command=%1
 
 if "%command%"=="" (
     echo Please enter a command
-    echo Available commands: up, down, restart, manage
+    echo Available commands: up, down, restart, cli
     exit /b 1
 )
 
@@ -33,7 +33,7 @@ if "%command%"=="restart" (
 )
 
 REM Management commands
-if "%command%"=="manage" (
+if "%command%"=="cli" (
     shift
     docker-compose -f docker-compose-prod.yaml run --rm vitty-api ./bin/vitty %*
     exit /b 1

@@ -6,7 +6,7 @@ command=$1
 
 if [ -z "$command" ]; then
     echo "Please enter a command"
-    echo "Available commands: up, down, restart, manage"
+    echo "Available commands: up, down, restart, cli"
     exit 1
 fi
 
@@ -33,7 +33,7 @@ if [ "$command" = "restart" ]; then
 fi
 
 # Management commands
-if [ "$command" = "manage" ]; then
+if [ "$command" = "cli" ]; then
     shift # Discard the first argument
     docker-compose -f docker-compose-local.yaml run --rm vitty-api ./bin/vitty "$@"
     exit 1
