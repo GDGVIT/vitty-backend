@@ -1,0 +1,18 @@
+# Fiber Variables
+# ---------------------------------------------------------------
+FIBER_PORT=:3000
+DEBUG=false
+
+# Postgres Variables
+# ---------------------------------------------------------------
+POSTGRES_URL=postgres://postgres:postgres@postgres:5432/postgres
+POSTGRES_USER=postgres
+POSTGRES_PASSWORD=postgres
+POSTGRES_DB=postgres
+POSTGRES_HOST=localhost
+POSTGRES_PORT=5432
+
+# Auth Variables
+# ---------------------------------------------------------------
+OAUTH_CALLBACK_URL=http://localhost:3000/auth/callback
+JWT_SECRET=secret
