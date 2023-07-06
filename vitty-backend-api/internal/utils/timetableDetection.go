@@ -56,7 +56,6 @@ func DetectTimetable(text string) ([]TimetableSlotV1, error) {
 
 func DetectTimetableV2(text string) ([]TimetableSlotV1, error) {
 	text = strings.ReplaceAll(text, "\r", "")
-
 	var code, name, venue []string
 	var slots [][]string
 	var Slots []TimetableSlotV1
@@ -64,8 +63,8 @@ func DetectTimetableV2(text string) ([]TimetableSlotV1, error) {
 	re := regexp.MustCompile("[A-Z]{4}[0-9]{3}.+\n|[A-Z]{3}[0-9]{4}.+\n").FindAllString(text, -1)
 
 	for _, c := range re {
-		code_n := regexp.MustCompile("[A-Z]{4}[0-9]{3}|[A-Z]{3}[0-9]{4}").FindAllString(c, -1)[0]
-		name_n := strings.TrimRight(strings.TrimLeft(c, code_n), "\n")
+		code_n := regexp.MustCompile("[A-Z]{4}[0-9]{3}[LPE]|[A-Z]{3}[0-9]{4}[LPE]").FindAllString(c, -1)[0]
+		name_n := strings.TrimRight(strings.TrimLeft(c, code_n)[3:], "\n")
 		if code_n != "" && name_n != "" {
 			code = append(code, code_n)
 			name = append(name, name_n)
