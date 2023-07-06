@@ -1,19 +1,28 @@
-FROM ubuntu:latest
+# BUILD IMAGE
+FROM golang:1.19.3-alpine3.15 AS builder
 
-WORKDIR /app
+WORKDIR /usr/src/app
 
-RUN apt-get update
-RUN apt install -y python3-pip python3
+RUN apk update \
+    && apk --no-cache --update add build-base git
 
-ENV TZ=Asia/Kolkata
-RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
+COPY ./vitty-backend-api/go.mod ./vitty-backend-api/go.sum ./
 
+RUN go mod download && go mod verify
 
-COPY . /app
+COPY ./vitty-backend-api .
 
-RUN pip3 install fastapi uvicorn starlette
-RUN apt install -y python3
-RUN pip3 install -r requirements.txt
-RUN pip3 install python-multipart
+RUN go build -o bin/vitty
 
-CMD ["uvicorn","main:app","--reload","--port","8000","--host","0.0.0.0"]
+# RUNNER IMAGE
+FROM alpine:3.15 AS runner
+
+WORKDIR /usr/src/app
+
+COPY --from=builder /usr/src/app/bin/vitty ./bin/vitty
+
+COPY --from=builder /usr/src/app/credentials ./credentials
+
+RUN chmod +x ./bin/vitty
+
+CMD ["./bin/vitty", "run"]
