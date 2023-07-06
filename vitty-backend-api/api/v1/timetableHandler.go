@@ -6,9 +6,17 @@ import (
 )
 
 func getTimetable(c *fiber.Ctx) error {
-	data := c.FormValue("request")
+	response := struct {
+		Data string `json:"data"`
+	}{}
 
-	slots, err := utils.DetectTimetable(data)
+	if err := c.BodyParser(&response); err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"detail": err.Error(),
+		})
+	}
+
+	slots, err := utils.DetectTimetable(response.Data)
 	if err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
 			"detail": err.Error(),
@@ -26,9 +34,17 @@ func getTimetable(c *fiber.Ctx) error {
 }
 
 func getTimetableV2(c *fiber.Ctx) error {
-	data := c.FormValue("request")
+	response := struct {
+		Data string `json:"data"`
+	}{}
 
-	slots, err := utils.DetectTimetableV2(data)
+	if err := c.BodyParser(&response); err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"detail": err.Error(),
+		})
+	}
+
+	slots, err := utils.DetectTimetableV2(response.Data)
 	if err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
 			"detail": err.Error(),
@@ -47,6 +63,6 @@ func getTimetableV2(c *fiber.Ctx) error {
 
 func V1Handler(api fiber.Router) {
 	group := api.Group("/v1")
-	group.Get("/timetable", getTimetable)
-	group.Get("/timetable/v2", getTimetableV2)
+	group.Post("/timetable", getTimetable)
+	group.Post("/timetableV2", getTimetableV2)
 }

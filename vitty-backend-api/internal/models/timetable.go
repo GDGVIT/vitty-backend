@@ -52,6 +52,10 @@ func (t Timetable) GetDaywiseTimetable() map[string][]Slot {
 				if err != nil {
 					log.Println("Error parsing time: ", err)
 				}
+				slot.EndTime, err = time.Parse("15:04", TheoryTimings[index].EndTime)
+				if err != nil {
+					log.Println("Error parsing time: ", err)
+				}
 				resp[day] = append(resp[day], slot)
 			} else if slices.Contains(value["Lab"], slot.Slot) {
 				resp[day] = append(resp[day], slot)

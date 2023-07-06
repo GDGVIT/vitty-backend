@@ -27,6 +27,7 @@
 	- [Running the application](#running-the-application)
 	- [Stopping the application](#stopping-the-application)
 	- [Using management commands of the CLI application](#using-management-commands-of-the-cli-application)
+- [API Documentation](#api-documentation)
 - [Developer](#developer)
 
 
@@ -137,6 +138,12 @@ vitty.bat cli <command>
 ```
 
 > **NOTE:** Replace script file names with `.vitty-local.sh` and `.vitty-local.bat` for local environment
+
+<br>
+<br>
+
+## API Documentation
+Postman API documentation - [Vitty API](https://documenter.getpostman.com/view/23405999/2s93zFWeZx)
 
 <br>
 <br>
