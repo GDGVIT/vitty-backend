@@ -38,28 +38,28 @@ if "%command%" == "" (
 REM Start server command
 if "%command%" == "up" (
     echo Starting server
-    docker-compose -f "%file%" up -d --build
+    docker compose -f "%file%" up -d --build
     exit /b 1
 )
 
 REM Stop server command
 if "%command%" == "down" (
     echo Stopping server
-    docker-compose -f "%file%" down
+    docker compose -f "%file%" down
     exit /b 1
 )
 
 REM Restart server command
 if "%command%" == "restart" (
     echo Restarting server
-    docker-compose -f "%file%" down
-    docker-compose -f "%file%" up -d --build
+    docker compose -f "%file%" down
+    docker compose -f "%file%" up -d --build
     exit /b 1
 )
 
 REM Management commands
 if "%command%" == "cli" (
     shift
-    docker-compose -f "%file%" run --rm vitty-api ./bin/vitty %*
+    docker compose -f "%file%" run --rm vitty-api ./bin/vitty %*
     exit /b 1
 )

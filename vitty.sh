@@ -36,28 +36,28 @@ fi
 # Start server command
 if [ "$command" = "up" ]; then
     echo "Starting server"
-    docker-compose -f "$file" up -d --build
+    docker compose -f "$file" up -d --build
     exit 1
 fi
 
 # Stop server command
 if [ "$command" = "down" ]; then
     echo "Stopping server"
-    docker-compose -f "$file" down
+    docker compose -f "$file" down
     exit 1
 fi
 
 # Restart server command
 if [ "$command" = "restart" ]; then
     echo "Restarting server"
-    docker-compose -f "$file" down
-    docker-compose -f "$file" up -d --build
+    docker compose -f "$file" down
+    docker compose -f "$file" up -d --build
     exit 1
 fi
 
 # Management commands
 if [ "$command" = "cli" ]; then
     shift # Discard the first argument
-    docker-compose -f $"file" run --rm vitty-api ./bin/vitty "$@"
+    docker compose -f $"file" run --rm vitty-api ./bin/vitty "$@"
     exit 1
 fi
