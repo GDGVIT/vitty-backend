@@ -21,7 +21,7 @@ WORKDIR /usr/src/app
 
 COPY --from=builder /usr/src/app/bin/vitty ./bin/vitty
 
-COPY --from=builder /usr/src/app/credentials ./credentials
+# COPY --from=builder /usr/src/app/credentials ./credentials
 
 RUN chmod +x ./bin/vitty
 

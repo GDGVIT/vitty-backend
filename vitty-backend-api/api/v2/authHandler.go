@@ -78,7 +78,25 @@ func googleLogin(c *fiber.Ctx) error {
 	return c.Status(fiber.StatusOK).JSON(serializers.UserLoginSerializer(user, token))
 }
 
+func appleLogin(c *fiber.Ctx) error {
+	type RequestBody struct {
+		Id_token string `json:"id_token"`
+		RegNo    string `json:"reg_no,omitempty"`
+		Username string `json:"username,omitempty"`
+	}
+
+	var body RequestBody
+	err := c.BodyParser(&body)
+	if err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"detail": err.Error(),
+		})
+	}
+	return nil
+}
+
 func authHandler(api fiber.Router) {
 	group := api.Group("/auth")
 	group.Post("/google", googleLogin)
+	group.Post("/apple", appleLogin)
 }
