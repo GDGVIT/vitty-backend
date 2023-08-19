@@ -8,7 +8,7 @@ on:
 
 jobs:
   Deploy:
-    runs_on: ubuntu-latest
+    runs-on: ubuntu-latest
     steps:
       - name: changing to working directory and pulling from github
         uses: appleboy/ssh-action@v1.0.0
