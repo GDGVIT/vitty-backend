@@ -12,6 +12,14 @@ services:
       - ./:/user/src/app
     env_file:
       - ./vitty-backend-api/.env/.local
+    environment:
+      - FIBER_PORT
+      - DEBUG
+      - POSTGRES_URL
+      - JWT_SECRET
+      - GOOGLE_CLIENT_ID
+      - GOOGLE_CLIENT_SECRET
+      - GOOGLE_REDIRECT_URI
     depends_on:
       - postgres
     networks:
@@ -25,6 +33,12 @@ services:
       - postgres-db:/var/lib/postgresql/data
     env_file:
       - ./vitty-backend-api/.env/.local
+    environment:
+      - POSTGRES_USER
+      - POSTGRES_PASSWORD
+      - POSTGRES_DB
+      - POSTGRES_HOST
+      - POSTGRES_PORT
     ports:
       - 5432:5432
     networks:
