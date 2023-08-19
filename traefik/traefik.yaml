@@ -40,7 +40,7 @@ http:
     vitty-api:
       loadBalancer:
         servers:
-          - url: http://vitty-api:5000
+          - url: http://vitty-api:3000
 
 providers:
   # https://docs.traefik.io/master/providers/file/
