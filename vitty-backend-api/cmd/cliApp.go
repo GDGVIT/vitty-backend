@@ -67,6 +67,7 @@ func (v *VittyCliApp) init() {
 	models.InitializeModels()
 	auth.InitializeAuth(v.env.jwtSecret)
 	auth.InitializeGoogleOauth(v.env.google_client_id, v.env.google_client_secret, v.env.google_redirect_uri)
+	auth.InitializeFirebaseApp()
 
 	v.CliApp = cli.NewApp()
 

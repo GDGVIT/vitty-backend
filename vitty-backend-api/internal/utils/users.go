@@ -23,6 +23,12 @@ func GetUserByUsername(username string) models.User {
 	return user
 }
 
+func CheckUserByUUID(uuid string) bool {
+	var count int64
+	database.DB.Model(&models.User{}).Where("firebase_uuid = ?", uuid).Count(&count)
+	return count != 0
+}
+
 func ValidateUsername(username string) (bool, string) {
 	// Username should be between 3 and 20 characters
 	if len(username) < 3 || len(username) > 20 {
