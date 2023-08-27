@@ -6,13 +6,14 @@ import (
 )
 
 type User struct {
-	Username string  `gorm:"primaryKey"`
-	RegNo    string  `gorm:"unique"`
-	Name     string  `gorm:"not null"`
-	Email    string  `gorm:"unique,not null"`
-	Role     string  `gorm:"default:normal"`
-	Picture  string  `gorm:"not null"`
-	Friends  []*User `gorm:"many2many:user_friends;foreignKey:Username;joinForeignKey:UserUsername;References:Username;joinReferences:FriendUsername"`
+	Username     string  `gorm:"primaryKey"`
+	RegNo        string  `gorm:"unique"`
+	Name         string  `gorm:"not null"`
+	Email        string  `gorm:"unique,not null"`
+	Role         string  `gorm:"default:normal"`
+	Picture      string  `gorm:"not null"`
+	Friends      []*User `gorm:"many2many:user_friends;foreignKey:Username;joinForeignKey:UserUsername;References:Username;joinReferences:FriendUsername"`
+	FirebaseUuid string  `gorm:"unique"`
 }
 
 func (u *User) GetFriendRequests() []FriendRequest {

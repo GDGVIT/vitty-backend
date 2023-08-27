@@ -1,0 +1,25 @@
+name: Deploy container on Azure VM
+
+on:
+  push:
+    branches: [ v2 ]
+  pull_request:
+    branches: [ v2 ]
+
+jobs:
+  Deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: changing to working directory and pulling from github
+        uses: appleboy/ssh-action@v1.0.0
+        with:
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.USERNAME }}
+          password: ${{ secrets.PASSWORD }}
+          port: 22
+          script: |
+            cd ~/vitty-backend
+            git pull
+            sudo docker compose -f docker-compose-prod.yaml up -d --build
+
+    

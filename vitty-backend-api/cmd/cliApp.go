@@ -15,6 +15,7 @@ import (
 	"github.com/urfave/cli/v2"
 )
 
+// VITTY CLI App
 type VittyCliApp struct {
 	env Env
 
@@ -22,12 +23,22 @@ type VittyCliApp struct {
 	fiberApp *fiber.App
 }
 
+// Environment variables
 type Env struct {
-	fiberPort        string
-	debug            string
-	postgresUrl      string
-	ouathCallbackUrl string
-	jwtSecret        string
+	// Fiber Variables
+	fiberPort string
+	debug     string
+
+	// Database Variables
+	postgresUrl string
+
+	// Auth Variables
+	jwtSecret string
+
+	// Google Auth Variables
+	google_client_id     string
+	google_client_secret string
+	google_redirect_uri  string
 }
 
 // Method to create a new VittyCliApp
@@ -42,8 +53,10 @@ func (v *VittyCliApp) setEnv() {
 	v.env.fiberPort = os.Getenv("FIBER_PORT")
 	v.env.debug = os.Getenv("DEBUG")
 	v.env.postgresUrl = os.Getenv("POSTGRES_URL")
-	v.env.ouathCallbackUrl = os.Getenv("OAUTH_CALLBACK_URL")
 	v.env.jwtSecret = os.Getenv("JWT_SECRET")
+	v.env.google_client_id = os.Getenv("GOOGLE_CLIENT_ID")
+	v.env.google_client_secret = os.Getenv("GOOGLE_CLIENT_SECRET")
+	v.env.google_redirect_uri = os.Getenv("GOOGLE_REDIRECT_URI")
 }
 
 // Method to initialize the VittyCliApp
@@ -52,7 +65,9 @@ func (v *VittyCliApp) init() {
 
 	database.Connect(v.env.debug, v.env.postgresUrl)
 	models.InitializeModels()
-	auth.InitializeAuth(v.env.ouathCallbackUrl, v.env.jwtSecret)
+	auth.InitializeAuth(v.env.jwtSecret)
+	auth.InitializeGoogleOauth(v.env.google_client_id, v.env.google_client_secret, v.env.google_redirect_uri)
+	auth.InitializeFirebaseApp()
 
 	v.CliApp = cli.NewApp()
 
