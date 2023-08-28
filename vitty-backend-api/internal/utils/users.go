@@ -45,6 +45,13 @@ func ValidateUsername(username string) (bool, string) {
 		}
 	}
 
+	// Username should have at max 1 . or _ in a row
+	for i := 0; i < len(username)-1; i++ {
+		if (username[i] == '.' || username[i] == '_') && (username[i+1] == '.' || username[i+1] == '_') {
+			return false, "Username should have at max 1 . or _ in a row"
+		}
+	}
+
 	if CheckUserExists(username) {
 		return false, "Username already exists"
 	}
