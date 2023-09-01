@@ -28,7 +28,7 @@ certificatesResolvers:
 http:
   routers:
     web-secure-router:
-      rule: "Host(`vitty-backend.dhruvshah.live`)"
+      rule: "Host(`vitty-api.dhruvshah.live`)"
       entryPoints:
         - web-secure
       service: vitty-api
