@@ -16,6 +16,7 @@ import (
 func authHandler(api fiber.Router) {
 	group := api.Group("/auth")
 	group.Post("/check-username", checkUsernameValidity)
+	group.Post("/check-user-exists", checkUserExists)
 	group.Post("/google", googleLogin)
 	group.Post("/firebase", firebaseLogin)
 }
@@ -39,6 +40,30 @@ func checkUsernameValidity(c *fiber.Ctx) error {
 	}
 	return c.Status(fiber.StatusOK).JSON(fiber.Map{
 		"detail": "Username is valid",
+	})
+}
+
+func checkUserExists(c *fiber.Ctx) error {
+	type RequestBody struct {
+		UUID string `json:"uuid"`
+	}
+
+	var body RequestBody
+	err := c.BodyParser(&body)
+	if err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"detail": err.Error(),
+		})
+	}
+
+	if !utils.CheckUserByUUID(body.UUID) {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"detail": "User does not exist",
+		})
+	}
+
+	return c.Status(fiber.StatusOK).JSON(fiber.Map{
+		"detail": "User exists",
 	})
 }
 
