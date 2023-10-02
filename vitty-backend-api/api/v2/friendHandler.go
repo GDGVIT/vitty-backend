@@ -10,6 +10,18 @@ import (
 	"gorm.io/gorm/clause"
 )
 
+func friendHandler(api fiber.Router) {
+	requestGroup := api.Group("/requests")
+	requestGroup.Get("/", getFriendRequests)
+	requestGroup.Post("/:username/send", createFriendRequest)
+	requestGroup.Post("/:username/accept", acceptFriendRequest)
+	requestGroup.Post("/:username/decline", declineFriendRequest)
+
+	friendGroup := api.Group("/friends")
+	friendGroup.Get("/:username", getFriends)
+	friendGroup.Delete("/:username", removeFriend)
+}
+
 func getFriendRequests(c *fiber.Ctx) error {
 	request_user, err := auth.GetUserFromJWTToken(c.Get("Authorization"), auth.JWTSecret)
 	if err != nil {
@@ -213,16 +225,4 @@ func removeFriend(c *fiber.Ctx) error {
 	return c.Status(fiber.StatusOK).JSON(fiber.Map{
 		"detail": "Friend removed successfully",
 	})
-}
-
-func friendHandler(api fiber.Router) {
-	requestGroup := api.Group("/requests")
-	requestGroup.Get("/", getFriendRequests)
-	requestGroup.Post("/:username/send", createFriendRequest)
-	requestGroup.Post("/:username/accept", acceptFriendRequest)
-	requestGroup.Post("/:username/decline", declineFriendRequest)
-
-	friendGroup := api.Group("/friends")
-	friendGroup.Get("/:username", getFriends)
-	friendGroup.Delete("/:username", removeFriend)
 }

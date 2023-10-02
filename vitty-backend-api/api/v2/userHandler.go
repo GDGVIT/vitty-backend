@@ -11,6 +11,15 @@ import (
 	"github.com/gofiber/fiber/v2"
 )
 
+func userHandler(api fiber.Router) {
+	group := api.Group("/users")
+	group.Get("/", getUsers)
+	group.Get("/search", searchUsers)
+	group.Get("/suggested", getSuggestedUsers)
+	group.Get("/:username", getUser)
+	group.Delete("/:username", deleteUser)
+}
+
 func searchUsers(c *fiber.Ctx) error {
 	request_user, err := auth.GetUserFromJWTToken(c.Get("Authorization"), auth.JWTSecret)
 	if err != nil {
@@ -96,13 +105,4 @@ func deleteUser(c *fiber.Ctx) error {
 	return c.Status(fiber.StatusOK).JSON(fiber.Map{
 		"detail": "User deleted successfully",
 	})
-}
-
-func userHandler(api fiber.Router) {
-	group := api.Group("/users")
-	group.Get("/", getUsers)
-	group.Get("/search", searchUsers)
-	group.Get("/suggested", getSuggestedUsers)
-	group.Get("/:username", getUser)
-	group.Delete("/:username", deleteUser)
 }

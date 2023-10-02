@@ -10,6 +10,13 @@ import (
 	"gorm.io/gorm"
 )
 
+func timetableHandler(app fiber.Router) {
+	group := app.Group("/timetable")
+	group.Post("/:username", createTimetable)
+	group.Get("/:username", getTimetable)
+	group.Delete("/:username", deleteTimetable)
+}
+
 func createTimetable(c *fiber.Ctx) error {
 	request_user, err := auth.GetUserFromJWTToken(c.Get("Authorization"), auth.JWTSecret)
 	if err != nil {
@@ -146,11 +153,4 @@ func deleteTimetable(c *fiber.Ctx) error {
 	return c.Status(fiber.StatusOK).JSON(fiber.Map{
 		"detail": "Timetable deleted successfully",
 	})
-}
-
-func timetableHandler(app fiber.Router) {
-	group := app.Group("/timetable")
-	group.Post("/:username", createTimetable)
-	group.Get("/:username", getTimetable)
-	group.Delete("/:username", deleteTimetable)
 }

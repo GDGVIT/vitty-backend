@@ -13,6 +13,13 @@ import (
 	"google.golang.org/api/idtoken"
 )
 
+func authHandler(api fiber.Router) {
+	group := api.Group("/auth")
+	group.Post("/check-username", checkUsernameValidity)
+	group.Post("/google", googleLogin)
+	group.Post("/firebase", firebaseLogin)
+}
+
 func checkUsernameValidity(c *fiber.Ctx) error {
 	type RequestBody struct {
 		Username string `json:"username"`
@@ -170,11 +177,4 @@ func firebaseLogin(c *fiber.Ctx) error {
 		})
 	}
 	return c.Status(fiber.StatusOK).JSON(serializers.UserLoginSerializer(user, token))
-}
-
-func authHandler(api fiber.Router) {
-	group := api.Group("/auth")
-	group.Post("/check-username", checkUsernameValidity)
-	group.Post("/google", googleLogin)
-	group.Post("/firebase", firebaseLogin)
 }
