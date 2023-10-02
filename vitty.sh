@@ -30,6 +30,7 @@ if [ -z "$command" ]; then
     echo "  down: Stop the server"
     echo "  restart: Restart the server"
     echo "  cli: Run a command inside the container"
+    echo "  logs: Show the logs of the container"
     exit 1
 fi
 
@@ -52,6 +53,13 @@ if [ "$command" = "restart" ]; then
     echo "Restarting server"
     docker compose -f "$file" down
     docker compose -f "$file" up -d --build
+    exit 1
+fi
+
+# Show logs command
+if [ "$command" = "logs" ]; then
+    echo "Showing logs"
+    docker compose -f "$file" logs -f
     exit 1
 fi
 
