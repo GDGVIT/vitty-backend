@@ -1,10 +1,10 @@
 package v2
 
 import (
-	"github.com/GDGVIT/vitty-backend/vitty-backend-api/internal/auth"
+	"github.com/GDGVIT/vitty-backend/vitty-backend-api/api/middleware"
+	"github.com/GDGVIT/vitty-backend/vitty-backend-api/api/serializers"
 	"github.com/GDGVIT/vitty-backend/vitty-backend-api/internal/database"
 	"github.com/GDGVIT/vitty-backend/vitty-backend-api/internal/models"
-	"github.com/GDGVIT/vitty-backend/vitty-backend-api/internal/serializers"
 	"github.com/GDGVIT/vitty-backend/vitty-backend-api/internal/utils"
 	"github.com/gofiber/fiber/v2"
 	"gorm.io/gorm/clause"
@@ -12,33 +12,25 @@ import (
 
 func friendHandler(api fiber.Router) {
 	requestGroup := api.Group("/requests")
+	requestGroup.Use(middleware.JWTAuthMiddleware)
 	requestGroup.Get("/", getFriendRequests)
 	requestGroup.Post("/:username/send", createFriendRequest)
 	requestGroup.Post("/:username/accept", acceptFriendRequest)
 	requestGroup.Post("/:username/decline", declineFriendRequest)
 
 	friendGroup := api.Group("/friends")
+	friendGroup.Use(middleware.JWTAuthMiddleware)
 	friendGroup.Get("/:username", getFriends)
 	friendGroup.Delete("/:username", removeFriend)
 }
 
 func getFriendRequests(c *fiber.Ctx) error {
-	request_user, err := auth.GetUserFromJWTToken(c.Get("Authorization"), auth.JWTSecret)
-	if err != nil {
-		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-			"detail": err.Error(),
-		})
-	}
+	request_user := c.Locals("user").(models.User)
 	return c.Status(fiber.StatusOK).JSON(serializers.FriendRequestsSerializer(request_user.GetFriendRequests(), request_user))
 }
 
 func createFriendRequest(c *fiber.Ctx) error {
-	request_user, err := auth.GetUserFromJWTToken(c.Get("Authorization"), auth.JWTSecret)
-	if err != nil {
-		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-			"detail": err.Error(),
-		})
-	}
+	request_user := c.Locals("user").(models.User)
 
 	username := c.Params("username")
 	if !utils.CheckUserExists(username) {
@@ -72,7 +64,7 @@ func createFriendRequest(c *fiber.Ctx) error {
 	var friend_request models.FriendRequest
 	friend_request.From = request_user
 	friend_request.To = user
-	err = database.DB.Create(&friend_request).Error
+	err := database.DB.Create(&friend_request).Error
 	if err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
 			"detail": err.Error(),
@@ -85,12 +77,7 @@ func createFriendRequest(c *fiber.Ctx) error {
 }
 
 func acceptFriendRequest(c *fiber.Ctx) error {
-	request_user, err := auth.GetUserFromJWTToken(c.Get("Authorization"), auth.JWTSecret)
-	if err != nil {
-		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-			"detail": err.Error(),
-		})
-	}
+	request_user := c.Locals("user").(models.User)
 
 	username := c.Params("username")
 	if !utils.CheckUserExists(username) {
@@ -126,12 +113,7 @@ func acceptFriendRequest(c *fiber.Ctx) error {
 }
 
 func declineFriendRequest(c *fiber.Ctx) error {
-	request_user, err := auth.GetUserFromJWTToken(c.Get("Authorization"), auth.JWTSecret)
-	if err != nil {
-		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-			"detail": err.Error(),
-		})
-	}
+	request_user := c.Locals("user").(models.User)
 
 	username := c.Params("username")
 	if !utils.CheckUserExists(username) {
@@ -167,12 +149,7 @@ func declineFriendRequest(c *fiber.Ctx) error {
 }
 
 func getFriends(c *fiber.Ctx) error {
-	request_user, err := auth.GetUserFromJWTToken(c.Get("Authorization"), auth.JWTSecret)
-	if err != nil {
-		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-			"detail": err.Error(),
-		})
-	}
+	request_user := c.Locals("user").(models.User)
 
 	username := c.Params("username")
 	if !utils.CheckUserExists(username) {
@@ -194,12 +171,7 @@ func getFriends(c *fiber.Ctx) error {
 }
 
 func removeFriend(c *fiber.Ctx) error {
-	request_user, err := auth.GetUserFromJWTToken(c.Get("Authorization"), auth.JWTSecret)
-	if err != nil {
-		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-			"detail": err.Error(),
-		})
-	}
+	request_user := c.Locals("user").(models.User)
 
 	username := c.Params("username")
 	if !utils.CheckUserExists(username) {

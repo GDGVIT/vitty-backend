@@ -1,10 +1,10 @@
 package v2
 
 import (
-	"github.com/GDGVIT/vitty-backend/vitty-backend-api/internal/auth"
+	"github.com/GDGVIT/vitty-backend/vitty-backend-api/api/middleware"
+	"github.com/GDGVIT/vitty-backend/vitty-backend-api/api/serializers"
 	"github.com/GDGVIT/vitty-backend/vitty-backend-api/internal/database"
 	"github.com/GDGVIT/vitty-backend/vitty-backend-api/internal/models"
-	"github.com/GDGVIT/vitty-backend/vitty-backend-api/internal/serializers"
 	"github.com/GDGVIT/vitty-backend/vitty-backend-api/internal/utils"
 	"github.com/gofiber/fiber/v2"
 	"gorm.io/gorm"
@@ -12,18 +12,14 @@ import (
 
 func timetableHandler(app fiber.Router) {
 	group := app.Group("/timetable")
+	group.Use(middleware.JWTAuthMiddleware)
 	group.Post("/:username", createTimetable)
 	group.Get("/:username", getTimetable)
 	group.Delete("/:username", deleteTimetable)
 }
 
 func createTimetable(c *fiber.Ctx) error {
-	request_user, err := auth.GetUserFromJWTToken(c.Get("Authorization"), auth.JWTSecret)
-	if err != nil {
-		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-			"detail": err.Error(),
-		})
-	}
+	request_user := c.Locals("user").(models.User)
 	username := c.Params("username")
 	if !utils.CheckUserExists(username) {
 		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{
@@ -49,7 +45,7 @@ func createTimetable(c *fiber.Ctx) error {
 	}
 
 	var timetableV1 []utils.TimetableSlotV1
-	timetableV1, err = utils.DetectTimetableV2(body.Timetable)
+	timetableV1, err := utils.DetectTimetableV2(body.Timetable)
 	if err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
 			"detail": err.Error(),
@@ -94,12 +90,7 @@ func createTimetable(c *fiber.Ctx) error {
 }
 
 func getTimetable(c *fiber.Ctx) error {
-	request_user, err := auth.GetUserFromJWTToken(c.Get("Authorization"), auth.JWTSecret)
-	if err != nil {
-		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-			"detail": err.Error(),
-		})
-	}
+	request_user := c.Locals("user").(models.User)
 
 	username := c.Params("username")
 	if !utils.CheckUserExists(username) {
@@ -122,12 +113,7 @@ func getTimetable(c *fiber.Ctx) error {
 }
 
 func deleteTimetable(c *fiber.Ctx) error {
-	request_user, err := auth.GetUserFromJWTToken(c.Get("Authorization"), auth.JWTSecret)
-	if err != nil {
-		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-			"detail": err.Error(),
-		})
-	}
+	request_user := c.Locals("user").(models.User)
 	username := c.Params("username")
 	if !utils.CheckUserExists(username) {
 		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{
@@ -143,7 +129,7 @@ func deleteTimetable(c *fiber.Ctx) error {
 	}
 
 	timetable := user.GetTimeTable()
-	err = database.DB.Delete(&timetable).Error
+	err := database.DB.Delete(&timetable).Error
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
 			"detail": err.Error(),

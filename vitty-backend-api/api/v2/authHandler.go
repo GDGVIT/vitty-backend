@@ -4,10 +4,10 @@ import (
 	"context"
 	"strings"
 
+	"github.com/GDGVIT/vitty-backend/vitty-backend-api/api/serializers"
 	"github.com/GDGVIT/vitty-backend/vitty-backend-api/internal/auth"
 	"github.com/GDGVIT/vitty-backend/vitty-backend-api/internal/database"
 	"github.com/GDGVIT/vitty-backend/vitty-backend-api/internal/models"
-	"github.com/GDGVIT/vitty-backend/vitty-backend-api/internal/serializers"
 	"github.com/GDGVIT/vitty-backend/vitty-backend-api/internal/utils"
 	"github.com/gofiber/fiber/v2"
 	"google.golang.org/api/idtoken"
