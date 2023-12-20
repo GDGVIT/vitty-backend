@@ -66,6 +66,6 @@ fi
 # Management commands
 if [ "$command" = "cli" ]; then
     shift # Discard the first argument
-    docker compose -f $"file" run --rm vitty-api ./bin/vitty "$@"
+    docker compose -f "$file" run --rm vitty-api ./bin/vitty "$@"
     exit 1
 fi
