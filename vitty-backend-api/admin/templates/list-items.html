@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>MODEL - {{ index . "model" }} </title>
+</head>
+<body>
+    <h1>Model - {{ index . "model" }}</h1>
+    
+    <h2>Fields</h2>
+    <div>
+        {{ range $key, $value := index . "fields" }}
+            <li>{{ $key }} - {{ $value }}</li>
+        {{ end }}
+    </div>
+
+    <button><a href="/{{ index . "model" }}/create">Create</a></button>
+
+    {{ $model := index . "model" }}
+    <h2> Items </h2>
+    {{ range $value := index . "items" }}
+        <div>
+            <a href="/{{ $model }}/{{ index . "pk_value" }}">{{ index . "item_name"}}</a>
+            
+        </div>
+    {{ end }}
+</body>
+</html>

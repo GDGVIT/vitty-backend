@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>{{ .model }} - {{ .item_name }}</title>
+</head>
+<script>
+    function deleteItem() {
+        confirm("Are you sure you want to delete this {{ .model }}?")
+        var requrestOptions = {
+            method: 'DELETE'
+        }
+
+        // If status code is 200, show message then redirect to /{{ .model }}, else alert error from message
+        fetch('/{{ .model }}/{{ .pk_value }}', requrestOptions)
+            .then(response => {
+                if (response.status == 200) {
+                    alert("{{ .model }} deleted successfully")
+                    window.location.href = '/{{ .model }}'
+                } else {
+                    response.json().then(data => {
+                        alert(data.message)
+                    })
+                }
+            })
+    }
+</script>
+<body>
+    <h1>{{ .model }} - {{ .item_name }}</h1>
+    
+    {{ $item := index . "item_map" }}
+    <h2>Fields</h2>
+    <div>
+        {{ range $field, $val := $item }}
+            <div>
+                <strong>{{ $field }}</strong>: {{ $val }}
+            </div>
+        {{ end }}
+    </div>
+
+    <br>
+    <br>
+
+    <button onclick="window.location.href='/{{ .model }}/{{ .pk_value }}/edit'">Edit</button>
+    <button onclick="deleteItem()">Delete</button>
+
+</body>
+</html>

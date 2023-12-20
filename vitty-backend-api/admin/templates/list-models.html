@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>MODELS</title>
+</head>
+<body>
+    <h1>MODELS</h1>
+    
+   {{ range $value := index . "model_names"}}
+    <div>
+        <a href="/{{ $value }}">{{ $value }}</a>
+    </div>
+    {{ end }}
+    
+
+</body>
+</html>

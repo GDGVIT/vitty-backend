@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Edit - {{ .item_name }}</title>
+</head>
+<script>
+    function saveItem   
+</script>
+<body>
+    <h1>Edit - {{ .item_name }}</h1>
+    
+    {{ $item := index . "item_map" }}
+    <h2>Fields</h2>
+    <div>
+        {{ range $field, $val := $item }}
+            <div>
+                <label for="{{ $field }}">{{ $field }}</label>
+                <input type="text" id="{{ $field }}" name="{{ $field }}" value="{{ $val }}">
+            </div>
+        {{ end }}
+    </div>
+
+    <br>
+    <br>
+
+    <button onclick="window.location.href='/{{ .model }}/{{ .item_name }}/save'">Save</button>
+    <button onclick="window.location.href='/{{ .model }}/{{ .pk_value }}'">Cancel</button>
+
+</body>
+</html>
