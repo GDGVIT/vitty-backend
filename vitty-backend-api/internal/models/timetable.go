@@ -58,9 +58,48 @@ func (t Timetable) GetDaywiseTimetable() map[string][]Slot {
 				}
 				resp[day] = append(resp[day], slot)
 			} else if slices.Contains(value["Lab"], slot.Slot) {
+				index := slices.Index(value["Lab"], slot.Slot)
+				var err error
+				slot.StartTime, err = time.Parse("15:04", LabTimings[index].StartTime)
+				if err != nil {
+					log.Println("Error parsing time: ", err)
+				}
+				slot.EndTime, err = time.Parse("15:04", LabTimings[index].EndTime)
+				if err != nil {
+					log.Println("Error parsing time: ", err)
+				}
 				resp[day] = append(resp[day], slot)
 			}
 		}
 	}
 	return resp
+}
+
+func (s *Slot) AddSlotTime() error {
+	for _, value := range DailySlots {
+		if slices.Contains(value["Theory"], s.Slot) {
+			index := slices.Index(value["Theory"], s.Slot)
+			var err error
+			s.StartTime, err = time.Parse("15:04", TheoryTimings[index].StartTime)
+			if err != nil {
+				return err
+			}
+			s.EndTime, err = time.Parse("15:04", TheoryTimings[index].EndTime)
+			if err != nil {
+				return err
+			}
+		} else if slices.Contains(value["Lab"], s.Slot) {
+			index := slices.Index(value["Lab"], s.Slot)
+			var err error
+			s.StartTime, err = time.Parse("15:04", LabTimings[index].StartTime)
+			if err != nil {
+				return err
+			}
+			s.EndTime, err = time.Parse("15:04", LabTimings[index].EndTime)
+			if err != nil {
+				return err
+			}
+		}
+	}
+	return nil
 }

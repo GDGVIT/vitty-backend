@@ -3,21 +3,26 @@ package v2
 import (
 	"fmt"
 
-	"github.com/GDGVIT/vitty-backend/vitty-backend-api/internal/auth"
+	"github.com/GDGVIT/vitty-backend/vitty-backend-api/api/middleware"
+	"github.com/GDGVIT/vitty-backend/vitty-backend-api/api/serializers"
 	"github.com/GDGVIT/vitty-backend/vitty-backend-api/internal/database"
 	"github.com/GDGVIT/vitty-backend/vitty-backend-api/internal/models"
-	"github.com/GDGVIT/vitty-backend/vitty-backend-api/internal/serializers"
 	"github.com/GDGVIT/vitty-backend/vitty-backend-api/internal/utils"
 	"github.com/gofiber/fiber/v2"
 )
 
+func userHandler(api fiber.Router) {
+	group := api.Group("/users")
+	group.Use(middleware.JWTAuthMiddleware)
+	group.Get("/", getUsers)
+	group.Get("/search", searchUsers)
+	group.Get("/suggested", getSuggestedUsers)
+	group.Get("/:username", getUser)
+	group.Delete("/:username", deleteUser)
+}
+
 func searchUsers(c *fiber.Ctx) error {
-	request_user, err := auth.GetUserFromJWTToken(c.Get("Authorization"), auth.JWTSecret)
-	if err != nil {
-		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-			"detail": err.Error(),
-		})
-	}
+	request_user := c.Locals("user").(models.User)
 
 	query := c.Query("query")
 	var users []*models.User
@@ -26,22 +31,12 @@ func searchUsers(c *fiber.Ctx) error {
 }
 
 func getSuggestedUsers(c *fiber.Ctx) error {
-	request_user, err := auth.GetUserFromJWTToken(c.Get("Authorization"), auth.JWTSecret)
-	if err != nil {
-		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-			"detail": err.Error(),
-		})
-	}
+	request_user := c.Locals("user").(models.User)
 	return c.Status(fiber.StatusOK).JSON(serializers.UserListSerializer(request_user.FindSuggestedOnMutualFriends(), request_user))
 }
 
 func getUsers(c *fiber.Ctx) error {
-	request_user, err := auth.GetUserFromJWTToken(c.Get("Authorization"), auth.JWTSecret)
-	if err != nil {
-		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-			"detail": err.Error(),
-		})
-	}
+	request_user := c.Locals("user").(models.User)
 	if request_user.Role != "admin" {
 		return c.Status(fiber.StatusForbidden).JSON(fiber.Map{
 			"detail": "You are not authorized to perform this action",
@@ -53,12 +48,7 @@ func getUsers(c *fiber.Ctx) error {
 }
 
 func getUser(c *fiber.Ctx) error {
-	request_user, err := auth.GetUserFromJWTToken(c.Get("Authorization"), auth.JWTSecret)
-	if err != nil {
-		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-			"detail": err.Error(),
-		})
-	}
+	request_user := c.Locals("user").(models.User)
 
 	username := c.Params("username")
 	if !utils.CheckUserExists(username) {
@@ -78,12 +68,7 @@ func getUser(c *fiber.Ctx) error {
 }
 
 func deleteUser(c *fiber.Ctx) error {
-	request_user, err := auth.GetUserFromJWTToken(c.Get("Authorization"), auth.JWTSecret)
-	if err != nil {
-		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-			"detail": err.Error(),
-		})
-	}
+	request_user := c.Locals("user").(models.User)
 
 	c.Params("username")
 	if request_user.Username != c.Params("username") {
@@ -96,13 +81,4 @@ func deleteUser(c *fiber.Ctx) error {
 	return c.Status(fiber.StatusOK).JSON(fiber.Map{
 		"detail": "User deleted successfully",
 	})
-}
-
-func userHandler(api fiber.Router) {
-	group := api.Group("/users")
-	group.Get("/", getUsers)
-	group.Get("/search", searchUsers)
-	group.Get("/suggested", getSuggestedUsers)
-	group.Get("/:username", getUser)
-	group.Delete("/:username", deleteUser)
 }

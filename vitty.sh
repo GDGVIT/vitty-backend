@@ -30,6 +30,7 @@ if [ -z "$command" ]; then
     echo "  down: Stop the server"
     echo "  restart: Restart the server"
     echo "  cli: Run a command inside the container"
+    echo "  logs: Show the logs of the container"
     exit 1
 fi
 
@@ -55,9 +56,16 @@ if [ "$command" = "restart" ]; then
     exit 1
 fi
 
+# Show logs command
+if [ "$command" = "logs" ]; then
+    echo "Showing logs"
+    docker compose -f "$file" logs -f
+    exit 1
+fi
+
 # Management commands
 if [ "$command" = "cli" ]; then
     shift # Discard the first argument
-    docker compose -f $"file" run --rm vitty-api ./bin/vitty "$@"
+    docker compose -f "$file" run --rm vitty-api ./bin/vitty "$@"
     exit 1
 fi
