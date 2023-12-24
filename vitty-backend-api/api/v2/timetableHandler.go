@@ -12,10 +12,37 @@ import (
 
 func timetableHandler(app fiber.Router) {
 	group := app.Group("/timetable")
+	group.Post("/parse", parseTimetable)
 	group.Use(middleware.JWTAuthMiddleware)
 	group.Post("/:username", createTimetable)
 	group.Get("/:username", getTimetable)
+	// group.Put("/:username", updateTimetable)
 	group.Delete("/:username", deleteTimetable)
+}
+
+func parseTimetable(c *fiber.Ctx) error {
+	// Get data from body
+	var body struct {
+		Timetable string `json:"timetable"`
+	}
+	if err := c.BodyParser(&body); err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"detail": err.Error(),
+		})
+	}
+
+	var timetableV1 []utils.TimetableSlotV1
+	timetableV1, err := utils.DetectTimetableV2(body.Timetable)
+	if err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"detail": err.Error(),
+		})
+	}
+
+	slots := utils.SlotsV1ToSlotsV2(timetableV1)
+	return c.Status(fiber.StatusOK).JSON(fiber.Map{
+		"timetable": slots,
+	})
 }
 
 func createTimetable(c *fiber.Ctx) error {
@@ -36,7 +63,7 @@ func createTimetable(c *fiber.Ctx) error {
 
 	// Get data from body
 	var body struct {
-		Timetable string `json:"timetable"`
+		Timetable []models.Slot `json:"timetable"`
 	}
 	if err := c.BodyParser(&body); err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
@@ -44,30 +71,11 @@ func createTimetable(c *fiber.Ctx) error {
 		})
 	}
 
-	var timetableV1 []utils.TimetableSlotV1
-	timetableV1, err := utils.DetectTimetableV2(body.Timetable)
-	if err != nil {
-		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-			"detail": err.Error(),
-		})
-	}
-
-	var timetableSlots []models.Slot
-	for _, slot := range timetableV1 {
-		timetableSlots = append(timetableSlots, models.Slot{
-			Slot:  slot.Slot,
-			Name:  slot.CourseFullName,
-			Code:  slot.CourseName,
-			Type:  slot.CourseType,
-			Venue: slot.Venue,
-		})
-	}
-
 	if !utils.CheckUserTimetableExists(user.Username) {
 		var timetable models.Timetable
 		timetable.User = user
-		timetable.Slots = timetableSlots
-		err = database.DB.Session(&gorm.Session{FullSaveAssociations: true}).Create(&timetable).Error
+		timetable.Slots = body.Timetable
+		err := database.DB.Session(&gorm.Session{FullSaveAssociations: true}).Create(&timetable).Error
 		if err != nil {
 			return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
 				"detail": err.Error(),
@@ -75,18 +83,15 @@ func createTimetable(c *fiber.Ctx) error {
 		}
 	} else {
 		timetable := user.GetTimeTable()
-		timetable.Slots = timetableSlots
-		err = database.DB.Save(&timetable).Error
+		timetable.Slots = body.Timetable
+		err := database.DB.Save(&timetable).Error
 		if err != nil {
 			return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
 				"detail": err.Error(),
 			})
 		}
 	}
-
-	return c.Status(fiber.StatusCreated).JSON(fiber.Map{
-		"detail": "Timetable created successfully",
-	})
+	return c.Status(fiber.StatusCreated).JSON(serializers.TimetableSerializer(user.GetTimeTable()))
 }
 
 func getTimetable(c *fiber.Ctx) error {
