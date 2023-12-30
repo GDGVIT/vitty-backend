@@ -15,13 +15,23 @@ func UserLoginSerializer(user models.User, token string) map[string]interface{} 
 }
 
 func UserCardSerializer(user models.User, request_user models.User) map[string]interface{} {
+	friendStatus := request_user.CheckFriendStatus(user)
+	var currStatus map[string]interface{}
+	if friendStatus == "friends" {
+		currStatus = user.GetCurrentStatus()
+	} else {
+		currStatus = map[string]interface{}{
+			"status": "unknown",
+		}
+	}
 	return map[string]interface{}{
 		"username":             user.Username,
 		"name":                 user.Name,
 		"picture":              user.Picture,
 		"friends_count":        user.FriendsCount(),
-		"friend_status":        request_user.CheckFriendStatus(user),
+		"friend_status":        friendStatus,
 		"mutual_friends_count": request_user.CountMutualFriends(user),
+		"current_status":       currStatus,
 	}
 }
 

@@ -164,6 +164,13 @@ func getFriends(c *fiber.Ctx) error {
 			"data":          serializers.UserListSerializer(request_user.FindMutualFriends(user), request_user),
 		})
 	}
+	friendStatus := request_user.CheckFriendStatus(user)
+	if friendStatus == "self" {
+		return c.Status(fiber.StatusOK).JSON(fiber.Map{
+			"friend_status": friendStatus,
+			"data":          serializers.UserListSerializer(user.Friends, request_user),
+		})
+	}
 	return c.Status(fiber.StatusOK).JSON(fiber.Map{
 		"friend_status": request_user.CheckFriendStatus(user),
 		"data":          serializers.UserListSerializer(user.Friends, request_user),

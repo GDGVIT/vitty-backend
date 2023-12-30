@@ -1,6 +1,8 @@
 package models
 
 import (
+	"time"
+
 	"github.com/GDGVIT/vitty-backend/vitty-backend-api/internal/database"
 	"gorm.io/gorm/clause"
 )
@@ -14,6 +16,27 @@ type User struct {
 	Picture      string  `gorm:"not null"`
 	Friends      []*User `gorm:"many2many:user_friends;foreignKey:Username;joinForeignKey:UserUsername;References:Username;joinReferences:FriendUsername"`
 	FirebaseUuid string  `gorm:"unique"`
+}
+
+func (u *User) GetCurrentStatus() map[string]interface{} {
+	// Check if user is currently in class
+	// If yes, return map with class details
+	// If no, status = free
+	// Get current time
+	time := time.Now()
+	daySlots := u.GetTimeTable().GetDaySlots(time.Weekday())
+	for _, slot := range daySlots[time.Weekday().String()] {
+		if slot.StartTime.Before(time) && slot.EndTime.After(time) {
+			return map[string]interface{}{
+				"status": "class",
+				"slot":   slot.Slot,
+				"venue":  slot.Venue,
+			}
+		}
+	}
+	return map[string]interface{}{
+		"status": "free",
+	}
 }
 
 func (u *User) GetFriendRequests() []FriendRequest {
