@@ -29,6 +29,7 @@ func (u *User) GetCurrentStatus() map[string]interface{} {
 		if slot.StartTime.Before(time) && slot.EndTime.After(time) {
 			return map[string]interface{}{
 				"status": "class",
+				"class":  slot.Name,
 				"slot":   slot.Slot,
 				"venue":  slot.Venue,
 			}
