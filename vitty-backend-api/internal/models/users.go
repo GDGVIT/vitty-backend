@@ -22,8 +22,8 @@ func (u *User) GetCurrentStatus() map[string]interface{} {
 	// Check if user is currently in class
 	// If yes, return map with class details
 	// If no, status = free
-	// Get current time
-	time := time.Now()
+	// Get current time(indian timezone)
+	time := time.Now().UTC().Add(5*time.Hour + 30*time.Minute)
 	daySlots := u.GetTimeTable().GetDaySlots(time.Weekday())
 	for _, slot := range daySlots[time.Weekday().String()] {
 		if slot.StartTime.Before(time) && slot.EndTime.After(time) {
