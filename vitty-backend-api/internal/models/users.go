@@ -1,6 +1,7 @@
 package models
 
 import (
+	"fmt"
 	"time"
 
 	"github.com/GDGVIT/vitty-backend/vitty-backend-api/internal/database"
@@ -22,11 +23,16 @@ func (u *User) GetCurrentStatus() map[string]interface{} {
 	// Check if user is currently in class
 	// If yes, return map with class details
 	// If no, status = free
-	// Get current time(indian timezone)
-	time := time.Now().UTC().Add(5*time.Hour + 30*time.Minute)
-	daySlots := u.GetTimeTable().GetDaySlots(time.Weekday())
-	for _, slot := range daySlots[time.Weekday().String()] {
-		if slot.StartTime.Before(time) && slot.EndTime.After(time) {
+	// Get current time(indian timezone) without `date` part
+	now := time.Now()
+	currTime := time.Date(0, 1, 1, now.Hour(), now.Minute(), now.Second(), 0, time.UTC).Add(5*time.Hour + 30*time.Minute)
+	// Remove date part
+	fmt.Println("Current time: ", currTime)
+	daySlots := u.GetTimeTable().GetDaySlots(time.Now().Weekday())
+	fmt.Println("Day slots: ", daySlots)
+	for _, slot := range daySlots[time.Now().Weekday().String()] {
+		fmt.Println("Slot: ", slot)
+		if slot.StartTime.Before(currTime) && slot.EndTime.After(currTime) {
 			return map[string]interface{}{
 				"status": "class",
 				"class":  slot.Name,
