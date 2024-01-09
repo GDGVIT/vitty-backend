@@ -32,7 +32,7 @@ func DetectTimetable(text string) ([]TimetableSlotV1, error) {
 		var obj TimetableSlotV1
 
 		obj.Slot = regexp.MustCompile(`[A-Z]{1,3}[0-9]{1,2}\b`).FindAllString(slot, -1)[0]
-		obj.CourseName = regexp.MustCompile(`[A-Z]{1,3}[0-9]{1,2}\b`).FindAllString(slot, -1)[0]
+		obj.CourseName = regexp.MustCompile(`[A-Z]{3,4}[0-9]{3,4}[A-Z]{0,1}\b`).FindAllString(slot, -1)[0]
 		course_type := regexp.MustCompile(`[A-Z]{1,3}[0-9]{1,2}\b`).FindAllString(slot, -1)[0]
 
 		var c_type string

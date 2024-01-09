@@ -87,7 +87,7 @@ func (v *VittyCliApp) init() {
 	v.fiberApp.Use(cors.New(
 		cors.Config{
 			AllowOrigins:     "*",
-			AllowHeaders:     "Origin, Content-Type, Accept",
+			AllowHeaders:     "*",
 			AllowCredentials: true,
 			AllowMethods:     "GET,POST,DELETE,PATCH,PUT,OPTIONS",
 		},

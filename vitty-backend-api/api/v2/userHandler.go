@@ -26,7 +26,7 @@ func searchUsers(c *fiber.Ctx) error {
 
 	query := c.Query("query")
 	var users []*models.User
-	database.DB.Where("username LIKE ? OR name LIKE ?", query+"%", query+"%").Find(&users)
+	database.DB.Where("username ILIKE ? OR name ILIKE ?", query+"%", query+"%").Find(&users)
 	return c.Status(fiber.StatusOK).JSON(serializers.UserListSerializer(users, request_user))
 }
 
