@@ -8,8 +8,8 @@ import (
 type FriendRequest struct {
 	FromUsername string `gorm:"primaryKey"`
 	ToUsername   string `gorm:"primaryKey"`
-	From         User   `gorm:"foreignKey:FromUsername;references:Username"`
-	To           User   `gorm:"foreignKey:ToUsername;references:Username"`
+	From         User   `gorm:"foreignKey:FromUsername;references:Username;constraint:OnDelete:CASCADE"`
+	To           User   `gorm:"foreignKey:ToUsername;references:Username;constraint:OnDelete:CASCADE"`
 }
 
 func (fr *FriendRequest) Accept() {
