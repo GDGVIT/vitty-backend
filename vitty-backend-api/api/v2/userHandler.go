@@ -71,7 +71,7 @@ func deleteUser(c *fiber.Ctx) error {
 	request_user := c.Locals("user").(models.User)
 
 	c.Params("username")
-	if request_user.Username != c.Params("username") {
+	if request_user.Username != c.Params("username") && request_user.Role != "admin" {
 		return c.Status(fiber.StatusForbidden).JSON(fiber.Map{
 			"detail": "You are not authorized to delete this user",
 		})
