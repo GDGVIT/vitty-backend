@@ -18,7 +18,7 @@ type Slot struct {
 }
 
 type Timetable struct {
-	User         User   `gorm:"foreignKey:UserUsername;references:Username;constraint:OnDelete:CASCADE"`
+	User         User   `gorm:"constraint:OnDelete:CASCADE;foreignKey:UserUsername;references:Username"`
 	UserUsername string `gorm:"primaryKey"`
 	Slots        []Slot `gorm:"serializer:json"`
 }

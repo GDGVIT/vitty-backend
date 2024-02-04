@@ -76,8 +76,9 @@ func deleteUser(c *fiber.Ctx) error {
 			"detail": "You are not authorized to delete this user",
 		})
 	}
+	deleteUser := utils.GetUserByUsername(c.Params("username"))
 
-	database.DB.Delete(&request_user)
+	database.DB.Delete(&deleteUser)
 	return c.Status(fiber.StatusOK).JSON(fiber.Map{
 		"detail": "User deleted successfully",
 	})
