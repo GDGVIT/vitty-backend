@@ -15,7 +15,7 @@ type User struct {
 	Email        string  `gorm:"unique,not null"`
 	Role         string  `gorm:"default:normal"`
 	Picture      string  `gorm:"not null"`
-	Friends      []*User `gorm:"many2many:user_friends;foreignKey:Username;joinForeignKey:UserUsername;References:Username;joinReferences:FriendUsername"`
+	Friends      []*User `gorm:"constraint:OnDelete:CASCADE;many2many:user_friends;foreignKey:Username;joinForeignKey:UserUsername;References:Username;joinReferences:FriendUsername"`
 	FirebaseUuid string  `gorm:"unique"`
 }
 
