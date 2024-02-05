@@ -5,3 +5,6 @@
 data
 credentials
 test/
+backups/
+prod/
+.DS_Store
