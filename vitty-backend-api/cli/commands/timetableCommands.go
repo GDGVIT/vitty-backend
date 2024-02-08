@@ -3,6 +3,7 @@ package commands
 import (
 	"fmt"
 
+	"github.com/GDGVIT/vitty-backend/vitty-backend-api/internal/database"
 	"github.com/GDGVIT/vitty-backend/vitty-backend-api/internal/models"
 	"github.com/GDGVIT/vitty-backend/vitty-backend-api/internal/utils"
 	"github.com/urfave/cli/v2"
@@ -14,6 +15,12 @@ var TimetableCommands = []*cli.Command{
 		Aliases: []string{"ptt"},
 		Usage:   "Parse a timetable",
 		Action:  parseTimetable,
+	},
+	{
+		Name:    "fix-slot-times",
+		Aliases: []string{"fst"},
+		Usage:   "Fix slot times",
+		Action:  fixSlotTimes,
 	},
 }
 
@@ -45,5 +52,24 @@ func parseTimetable(c *cli.Context) error {
 
 	fmt.Println("Slots: ")
 	fmt.Println(timetableSlots)
+	return nil
+}
+
+func fixSlotTimes(c *cli.Context) error {
+	users := []models.User{}
+	database.DB.Find(&users)
+	for _, user := range users {
+		timetable := user.GetTimeTable()
+		var slots []models.Slot
+		for _, slot := range timetable.Slots {
+			err := slot.AddSlotTime()
+			if err != nil {
+				fmt.Println("Error adding slot time: ", err)
+			}
+			slots = append(slots, slot)
+		}
+		timetable.Slots = slots
+		user.Save()
+	}
 	return nil
 }
