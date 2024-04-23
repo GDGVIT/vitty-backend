@@ -27,12 +27,21 @@ func searchUsers(c *fiber.Ctx) error {
 	query := c.Query("query")
 	var users []*models.User
 	database.DB.Where("username ILIKE ? OR name ILIKE ?", query+"%", query+"%").Find(&users)
-	return c.Status(fiber.StatusOK).JSON(serializers.UserListSerializer(users, request_user))
+	userList, err := serializers.UserListSerializer(users, request_user)
+	if err != nil {
+		return err
+	}
+	return c.Status(fiber.StatusOK).JSON(userList)
 }
 
 func getSuggestedUsers(c *fiber.Ctx) error {
 	request_user := c.Locals("user").(models.User)
-	return c.Status(fiber.StatusOK).JSON(serializers.UserListSerializer(request_user.FindSuggestedOnMutualFriends(), request_user))
+	userList, err := serializers.UserListSerializer(request_user.FindSuggestedOnMutualFriends(), request_user)
+	if err != nil {
+		return err
+	}
+
+	return c.Status(fiber.StatusOK).JSON(userList)
 }
 
 func getUsers(c *fiber.Ctx) error {
@@ -44,7 +53,13 @@ func getUsers(c *fiber.Ctx) error {
 	}
 	var users []*models.User
 	database.DB.Find(&users)
-	return c.Status(fiber.StatusOK).JSON(serializers.UserListSerializer(users, request_user))
+	userList, err := serializers.UserListSerializer(users, request_user)
+
+	if err != nil {
+		return err
+	}
+
+	return c.Status(fiber.StatusOK).JSON(userList)
 }
 
 func getUser(c *fiber.Ctx) error {
@@ -64,7 +79,12 @@ func getUser(c *fiber.Ctx) error {
 		(request_user.Role == "admin") {
 		return c.Status(fiber.StatusOK).JSON(serializers.UserSerializer(user, request_user))
 	}
-	return c.Status(fiber.StatusOK).JSON(serializers.UserCardSerializer(user, request_user))
+	userList, err := serializers.UserCardSerializer(user, request_user)
+
+	if err != nil {
+		return err
+	}
+	return c.Status(fiber.StatusOK).JSON(userList)
 }
 
 func deleteUser(c *fiber.Ctx) error {

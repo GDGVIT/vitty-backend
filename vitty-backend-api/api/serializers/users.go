@@ -2,6 +2,7 @@ package serializers
 
 import (
 	"github.com/GDGVIT/vitty-backend/vitty-backend-api/internal/models"
+	vittyerrors "github.com/GDGVIT/vitty-backend/vitty-backend-api/internal/vittyErrors"
 )
 
 func UserLoginSerializer(user models.User, token string) map[string]interface{} {
@@ -14,11 +15,15 @@ func UserLoginSerializer(user models.User, token string) map[string]interface{} 
 	}
 }
 
-func UserCardSerializer(user models.User, request_user models.User) map[string]interface{} {
+func UserCardSerializer(user models.User, request_user models.User) (map[string]interface{}, error) {
 	friendStatus := request_user.CheckFriendStatus(user)
+	var err error
 	var currStatus map[string]interface{}
 	if friendStatus == "friends" {
-		currStatus = user.GetCurrentStatus()
+		currStatus, err = user.GetCurrentStatus()
+		if err != nil {
+			return nil, vittyerrors.ErrFetchCurrentStatus
+		}
 	} else {
 		currStatus = map[string]interface{}{
 			"status": "unknown",
@@ -32,15 +37,19 @@ func UserCardSerializer(user models.User, request_user models.User) map[string]i
 		"friend_status":        friendStatus,
 		"mutual_friends_count": request_user.CountMutualFriends(user),
 		"current_status":       currStatus,
-	}
+	}, nil
 }
 
-func UserListSerializer(users []*models.User, request_user models.User) []map[string]interface{} {
+func UserListSerializer(users []*models.User, request_user models.User) ([]map[string]interface{}, error) {
 	var users_list []map[string]interface{}
 	for _, user := range users {
-		users_list = append(users_list, UserCardSerializer(*user, request_user))
+		userCard, err := UserCardSerializer(*user, request_user)
+		if err != nil {
+			return users_list, err
+		}
+		users_list = append(users_list, userCard)
 	}
-	return users_list
+	return users_list, nil
 }
 
 func UserSerializer(user models.User, request_user models.User) map[string]interface{} {

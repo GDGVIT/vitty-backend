@@ -26,7 +26,13 @@ func friendHandler(api fiber.Router) {
 
 func getFriendRequests(c *fiber.Ctx) error {
 	request_user := c.Locals("user").(models.User)
-	return c.Status(fiber.StatusOK).JSON(serializers.FriendRequestsSerializer(request_user.GetFriendRequests(), request_user))
+	friendRequest, err := serializers.FriendRequestsSerializer(request_user.GetFriendRequests(), request_user)
+
+	if err != nil {
+		return err
+	}
+
+	return c.Status(fiber.StatusOK).JSON(friendRequest)
 }
 
 func createFriendRequest(c *fiber.Ctx) error {
@@ -159,21 +165,34 @@ func getFriends(c *fiber.Ctx) error {
 	}
 	user := utils.GetUserByUsername(username)
 	if !user.IsFriendsWith(request_user) {
+		userList, err := serializers.UserListSerializer(request_user.FindMutualFriends(user), request_user)
+
+		if err != nil {
+			return err
+		}
+
 		return c.Status(fiber.StatusOK).JSON(fiber.Map{
 			"friend_status": request_user.CheckFriendStatus(user),
-			"data":          serializers.UserListSerializer(request_user.FindMutualFriends(user), request_user),
+			"data":          userList,
 		})
 	}
 	friendStatus := request_user.CheckFriendStatus(user)
+	userList, err := serializers.UserListSerializer(user.Friends, request_user)
+
+	if err != nil {
+		return err
+	}
+
 	if friendStatus == "self" {
 		return c.Status(fiber.StatusOK).JSON(fiber.Map{
 			"friend_status": friendStatus,
-			"data":          serializers.UserListSerializer(user.Friends, request_user),
+			"data":          userList,
 		})
 	}
+
 	return c.Status(fiber.StatusOK).JSON(fiber.Map{
 		"friend_status": request_user.CheckFriendStatus(user),
-		"data":          serializers.UserListSerializer(user.Friends, request_user),
+		"data":          userList,
 	})
 }
 

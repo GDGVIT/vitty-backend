@@ -19,13 +19,22 @@ type User struct {
 	FirebaseUuid string  `gorm:"unique"`
 }
 
-func (u *User) GetCurrentStatus() map[string]interface{} {
+func (u *User) GetCurrentStatus() (map[string]interface{}, error) {
 	// Check if user is currently in class
 	// If yes, return map with class details
 	// If no, status = free
 	// Get current time(indian timezone) without `date` part
 	now := time.Now()
-	currTime := time.Date(0, 1, 1, now.Hour(), now.Minute(), now.Second(), 0, time.UTC).Add(5*time.Hour + 30*time.Minute)
+	location, err := time.LoadLocation("Asia/Kolkata")
+
+	if err != nil {
+		fmt.Printf("Timezone error: %s", err.Error())
+		return nil, err
+	}
+
+	now = now.In(location)
+	currTime := time.Date(now.Year(), now.Month(), now.Day(), now.Hour(), now.Minute(), now.Second(), 0, time.UTC)
+
 	// Remove date part
 	fmt.Println("Current time: ", currTime)
 	daySlots := u.GetTimeTable().GetDaySlots(time.Now().Weekday())
@@ -38,12 +47,12 @@ func (u *User) GetCurrentStatus() map[string]interface{} {
 				"class":  slot.Name,
 				"slot":   slot.Slot,
 				"venue":  slot.Venue,
-			}
+			}, nil
 		}
 	}
 	return map[string]interface{}{
 		"status": "free",
-	}
+	}, nil
 }
 
 func (u *User) GetFriendRequests() []FriendRequest {
