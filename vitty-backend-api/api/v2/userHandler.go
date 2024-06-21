@@ -1,7 +1,10 @@
 package v2
 
 import (
+	"encoding/json"
 	"fmt"
+	"log"
+	"os"
 
 	"github.com/GDGVIT/vitty-backend/vitty-backend-api/api/middleware"
 	"github.com/GDGVIT/vitty-backend/vitty-backend-api/api/serializers"
@@ -19,6 +22,7 @@ func userHandler(api fiber.Router) {
 	group.Get("/suggested", getSuggestedUsers)
 	group.Get("/:username", getUser)
 	group.Delete("/:username", deleteUser)
+	group.Get("/emptyClassRooms", getEmptyClassRooms)
 }
 
 func searchUsers(c *fiber.Ctx) error {
@@ -82,4 +86,25 @@ func deleteUser(c *fiber.Ctx) error {
 	return c.Status(fiber.StatusOK).JSON(fiber.Map{
 		"detail": "User deleted successfully",
 	})
+}
+
+func getEmptyClassRooms(c *fiber.Ctx) error {
+	file, err := os.Open("./data/freeClasses.json")
+	if err != nil {
+		log.Printf("Error opening file: %v", err)
+		return c.Status(fiber.StatusInternalServerError).SendString("Please contact vitty support")
+	}
+	defer file.Close()
+
+	var freeClasses interface{}
+	decoder := json.NewDecoder(file)
+	err = decoder.Decode(&freeClasses)
+	if err != nil {
+		log.Fatalf("Error decoding JSON: %v", err)
+	}
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.ErrInternalServerError)
+	}
+
+	return c.Status(fiber.StatusOK).JSON(freeClasses)
 }
