@@ -6,13 +6,16 @@ require (
 	firebase.google.com/go v3.13.0+incompatible
 	github.com/gofiber/fiber/v2 v2.46.0
 	github.com/golang-jwt/jwt/v4 v4.5.0
+	github.com/google/uuid v1.3.0
 	github.com/labstack/echo/v4 v4.11.2
+	github.com/labstack/gommon v0.4.0
 	github.com/urfave/cli/v2 v2.25.6
 	golang.org/x/exp v0.0.0-20230522175609-2e198f4a06a1
 	golang.org/x/oauth2 v0.11.0
 	google.golang.org/api v0.138.0
 	gorm.io/driver/postgres v1.5.2
 	gorm.io/gorm v1.25.2-0.20230530020048-26663ab9bf55
+	gorm.io/plugin/soft_delete v1.2.1
 )
 
 require (
@@ -30,7 +33,6 @@ require (
 	github.com/golang/protobuf v1.5.3 // indirect
 	github.com/google/go-cmp v0.5.9 // indirect
 	github.com/google/s2a-go v0.1.5 // indirect
-	github.com/google/uuid v1.3.0 // indirect
 	github.com/googleapis/enterprise-certificate-proxy v0.2.5 // indirect
 	github.com/googleapis/gax-go/v2 v2.12.0 // indirect
 	github.com/jackc/pgpassfile v1.0.0 // indirect
@@ -39,7 +41,6 @@ require (
 	github.com/jinzhu/inflection v1.0.0 // indirect
 	github.com/jinzhu/now v1.1.5 // indirect
 	github.com/klauspost/compress v1.16.3 // indirect
-	github.com/labstack/gommon v0.4.0 // indirect
 	github.com/mattn/go-colorable v0.1.13 // indirect
 	github.com/mattn/go-isatty v0.0.19 // indirect
 	github.com/mattn/go-runewidth v0.0.14 // indirect

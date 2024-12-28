@@ -8,6 +8,7 @@ import (
 	vittyCli "github.com/GDGVIT/vitty-backend/vitty-backend-api/cli"
 	"github.com/GDGVIT/vitty-backend/vitty-backend-api/internal/auth"
 	"github.com/GDGVIT/vitty-backend/vitty-backend-api/internal/database"
+	"github.com/GDGVIT/vitty-backend/vitty-backend-api/internal/jobs"
 	"github.com/GDGVIT/vitty-backend/vitty-backend-api/internal/models"
 	"github.com/gofiber/fiber/v2"
 	"github.com/urfave/cli/v2"
@@ -37,6 +38,9 @@ type Env struct {
 	google_client_id     string
 	google_client_secret string
 	google_redirect_uri  string
+
+	// Job Variable
+	isRunJobs string
 }
 
 // Method to create a new VittyApp
@@ -93,6 +97,9 @@ func (v *VittyApp) init() {
 	auth.InitializeAuth(v.env.jwtSecret)
 	auth.InitializeGoogleOauth(v.env.google_client_id, v.env.google_client_secret, v.env.google_redirect_uri)
 	auth.InitializeFirebaseApp()
+
+	// Initialize jobs
+	jobs.InitializeJobs(v.env.isRunJobs)
 
 	// Initialize Web app
 	v.initWebApp()

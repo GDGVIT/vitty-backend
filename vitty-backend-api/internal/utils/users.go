@@ -1,8 +1,11 @@
 package utils
 
 import (
+	"strings"
+
 	"github.com/GDGVIT/vitty-backend/vitty-backend-api/internal/database"
 	"github.com/GDGVIT/vitty-backend/vitty-backend-api/internal/models"
+	"github.com/google/uuid"
 )
 
 func CheckUserExists(username string) bool {
@@ -57,4 +60,11 @@ func ValidateUsername(username string) (bool, string) {
 	}
 
 	return true, ""
+}
+
+func UUIDWithPrefix(prefix string) string {
+	id := uuid.New().String()
+	id = prefix + "_" + id
+	id = strings.ReplaceAll(id, "-", "")
+	return id
 }

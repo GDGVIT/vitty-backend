@@ -16,3 +16,7 @@ POSTGRES_PORT=5432
 # ---------------------------------------------------------------
 OAUTH_CALLBACK_URL=http://localhost:3000/auth/callback
 JWT_SECRET=secret
+
+# Job Variables
+# ---------------------------------------------------------------
+RUN_JOBS=false
