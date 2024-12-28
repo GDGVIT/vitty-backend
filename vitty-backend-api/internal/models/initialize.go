@@ -11,6 +11,7 @@ func InitializeModels() {
 		"User":            &User{},
 		"Timetable":       &Timetable{},
 		"Friend Requests": &FriendRequest{},
+		"Class_Slots":     &ClassSlotsJoin{},
 	}
 
 	for name, model := range MODELS {
@@ -21,4 +22,5 @@ func InitializeModels() {
 			log.Println("Successfully initialized model: ", name)
 		}
 	}
+
 }

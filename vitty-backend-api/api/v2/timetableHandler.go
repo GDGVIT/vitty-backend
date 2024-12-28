@@ -1,6 +1,8 @@
 package v2
 
 import (
+	"strings"
+
 	"github.com/GDGVIT/vitty-backend/vitty-backend-api/api/middleware"
 	"github.com/GDGVIT/vitty-backend/vitty-backend-api/api/serializers"
 	"github.com/GDGVIT/vitty-backend/vitty-backend-api/internal/database"
@@ -12,6 +14,7 @@ import (
 
 func timetableHandler(app fiber.Router) {
 	group := app.Group("/timetable")
+	group.Get("/emptyClassRooms", getEmptyClassRooms)
 	group.Post("/parse", parseTimetable)
 	group.Use(middleware.JWTAuthMiddleware)
 	group.Post("/:username", createTimetable)
@@ -144,4 +147,24 @@ func deleteTimetable(c *fiber.Ctx) error {
 	return c.Status(fiber.StatusOK).JSON(fiber.Map{
 		"detail": "Timetable deleted successfully",
 	})
+}
+
+func getEmptyClassRooms(c *fiber.Ctx) error {
+	slot := strings.ToUpper(c.Query("slot"))
+	found := false
+	for _, v := range models.TimetableSlots {
+		if slot == v {
+			found = true
+		}
+	}
+	if slot == "" || !found {
+		return c.Status(fiber.ErrBadRequest.Code).JSON(fiber.ErrBadRequest)
+	}
+
+	emptyClassRoomsJson := make(map[string]interface{})
+	classSlotsJoin := models.ClassSlotsJoin{}
+
+	emptyClassRoomsJson[slot] = classSlotsJoin.FindEmptyClassRooms(slot)
+
+	return c.Status(fiber.StatusOK).JSON(emptyClassRoomsJson)
 }

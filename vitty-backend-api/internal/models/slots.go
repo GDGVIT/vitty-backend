@@ -1,5 +1,9 @@
 package models
 
+var TimetableSlots = []string{"A1", "A2", "B1", "B2", "C1", "C2", "D1", "D2", "E1", "E2", "F1", "F2", "G1", "G2",
+	"TA1", "TA2", "TAA1", "TAA2", "TB1", "TB2", "TBB2", "TC1", "TC2", "TCC1", "TCC2", "TD1", "TD2", "TDD2", "TE1", "TE2", "TF1", "TF2",
+	"TG1", "TG2", "V1", "V2", "V3", "V4", "V5", "V6", "V7", "V8", "V9", "V10", "V11", "W21", "W22", "X11", "X12", "X21", "Y11", "Y12", "Y21", "Z21"}
+
 var DailySlots = map[string]map[string][]string{
 	"Monday": {
 		"Theory": {"A1", "F1", "D1", "TB1", "TG1", "A2", "F2", "D2", "TB2", "TG2", "V3"},
