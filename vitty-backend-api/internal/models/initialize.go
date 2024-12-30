@@ -11,6 +11,9 @@ func InitializeModels() {
 		"User":            &User{},
 		"Timetable":       &Timetable{},
 		"Friend Requests": &FriendRequest{},
+		"Circles":         &Circles{},
+		"UserCirclesJoin": &UsersCirclesJoin{},
+		"CircleRequests":  &CircleRequest{},
 	}
 
 	for name, model := range MODELS {
