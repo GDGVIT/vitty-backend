@@ -9,6 +9,7 @@ import (
 func InitializeModels() {
 	MODELS := map[string]interface{}{
 		"User":            &User{},
+		"UserFriends":     &UserFriends{},
 		"Timetable":       &Timetable{},
 		"Friend Requests": &FriendRequest{},
 	}
