@@ -11,6 +11,7 @@ func InitializeModels() {
 		"User":            &User{},
 		"Timetable":       &Timetable{},
 		"Friend Requests": &FriendRequest{},
+		"Reminders":       &Reminders{},
 		"Notes":           &Notes{},
 		"Courses":         &Courses{},
 	}
