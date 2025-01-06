@@ -143,7 +143,7 @@ vitty.bat cli <command>
 <br>
 
 ## API Documentation
-Postman API documentation - [Vitty API](https://documenter.getpostman.com/view/23405999/2s93zFWeZx)
+Postman API documentation - [Vitty API](https://documenter.getpostman.com/view/29639924/2sAYJ7fJWD)
 
 <br>
 <br>
