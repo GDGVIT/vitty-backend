@@ -48,12 +48,6 @@ func DetectTimetable(text string) ([]TimetableSlotV1, error) {
 	}
 
 	if len(Slots) == 0 {
-		return Slots, nil
-	}
-
-	var err error
-
-	if err != nil {
 		return Slots, errors.New("error in detecting timetable")
 	}
 
