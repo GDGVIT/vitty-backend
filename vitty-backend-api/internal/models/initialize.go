@@ -11,6 +11,7 @@ func InitializeModels() {
 		"User":            &User{},
 		"Timetable":       &Timetable{},
 		"Friend Requests": &FriendRequest{},
+		"Courses":         &Courses{},
 	}
 
 	for name, model := range MODELS {
