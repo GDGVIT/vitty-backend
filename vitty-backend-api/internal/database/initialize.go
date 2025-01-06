@@ -15,10 +15,13 @@ func Connect(debug string, dbUrls string) {
 
 	if debug == "true" {
 		DB, err = gorm.Open(postgres.Open(dbUrls), &gorm.Config{
-			Logger: logger.Default.LogMode(logger.Info),
+			Logger:         logger.Default.LogMode(logger.Info),
+			TranslateError: true,
 		})
 	} else {
-		DB, err = gorm.Open(postgres.Open(dbUrls), &gorm.Config{})
+		DB, err = gorm.Open(postgres.Open(dbUrls), &gorm.Config{
+			TranslateError: true,
+		})
 	}
 
 	if err != nil {
