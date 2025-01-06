@@ -27,11 +27,8 @@ func (u *User) GetCurrentStatus() map[string]interface{} {
 	now := time.Now()
 	currTime := time.Date(0, 1, 1, now.Hour(), now.Minute(), now.Second(), 0, time.Local)
 	// Remove date part
-	fmt.Println("Current time: ", currTime)
 	daySlots := u.GetTimeTable().GetDaySlots(time.Now().Weekday())
-	fmt.Println("Day slots: ", daySlots)
 	for _, slot := range daySlots[time.Now().Weekday().String()] {
-		fmt.Println("Slot: ", slot)
 		if slot.StartTime.Before(currTime) && slot.EndTime.After(currTime) {
 			return map[string]interface{}{
 				"status": "class",
@@ -63,6 +60,55 @@ func (u *User) IsFriendsWith(user User) bool {
 		Where("user_username = ? AND friend_username = ?", u.Username, user.Username).
 		Count(&count)
 	return count != 0
+}
+
+func (u *User) BecomeGost(friendUserName string) error {
+	var userFriend UserFriends
+
+	userFriend.UserUsername = u.Username
+	userFriend.FriendUsername = friendUserName
+
+	err := database.DB.Model(&UserFriends{}).Where(&userFriend).UpdateColumn("hide", true).Error
+	return err
+}
+
+func (u *User) BecomeAlive(friendUserName string) error {
+	var userFriend UserFriends
+	userFriend.UserUsername = u.Username
+	userFriend.FriendUsername = friendUserName
+	userFriend.Hide = false
+
+	err := database.DB.Model(&UserFriends{}).Where(&userFriend).UpdateColumn("hide", false).Error
+	return err
+}
+
+func (u *User) IsGhosted(friendUserName string) (error, bool) {
+	var userFriend UserFriends
+
+	userFriend.UserUsername = u.Username
+	userFriend.FriendUsername = friendUserName
+
+	threshold := time.Now().Add(-8*time.Hour - 48*time.Minute)
+
+	fmt.Println(threshold)
+
+	err := database.DB.Model(&UserFriends{}).Where("updated_at < ?", threshold).First(&userFriend).Error
+
+	if err != nil {
+		return err, false
+	}
+
+	if userFriend.Hide {
+		return nil, userFriend.Hide
+	}
+
+	userFriend.UserUsername = friendUserName
+	userFriend.FriendUsername = u.Username
+	userFriend.UpdatedAt = nil
+
+	err = database.DB.Model(&UserFriends{}).Where(&userFriend).First(&userFriend).Error
+
+	return err, userFriend.Hide
 }
 
 func (u *User) HasSentFriendRequest(user User) bool {
