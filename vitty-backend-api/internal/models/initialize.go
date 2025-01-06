@@ -9,11 +9,15 @@ import (
 func InitializeModels() {
 	MODELS := map[string]interface{}{
 		"User":            &User{},
+		"UserFriends":     &UserFriends{},
 		"Timetable":       &Timetable{},
 		"Friend Requests": &FriendRequest{},
 		"Circles":         &Circles{},
 		"UserCirclesJoin": &UsersCirclesJoin{},
 		"CircleRequests":  &CircleRequest{},
+		"Reminders":       &Reminders{},
+		"Notes":           &Notes{},
+		"Courses":         &Courses{},
 	}
 
 	for name, model := range MODELS {

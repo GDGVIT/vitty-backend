@@ -1,6 +1,8 @@
 package v2
 
 import (
+	"log"
+
 	"github.com/GDGVIT/vitty-backend/vitty-backend-api/api/middleware"
 	"github.com/GDGVIT/vitty-backend/vitty-backend-api/api/serializers"
 	"github.com/GDGVIT/vitty-backend/vitty-backend-api/internal/database"
@@ -22,8 +24,9 @@ func friendHandler(api fiber.Router) {
 	friendGroup.Use(middleware.JWTAuthMiddleware)
 	friendGroup.Get("/:username", getFriends)
 	friendGroup.Delete("/:username", removeFriend)
+	friendGroup.Post("/ghost/:username", becomeGhost)
+	friendGroup.Post("/alive/:username", becomeAlive)
 }
-
 func getFriendRequests(c *fiber.Ctx) error {
 	request_user := c.Locals("user").(models.User)
 	return c.Status(fiber.StatusOK).JSON(serializers.FriendRequestsSerializer(request_user.GetFriendRequests(), request_user))
@@ -203,5 +206,37 @@ func removeFriend(c *fiber.Ctx) error {
 
 	return c.Status(fiber.StatusOK).JSON(fiber.Map{
 		"detail": "Friend removed successfully",
+	})
+}
+
+func becomeGhost(c *fiber.Ctx) error {
+	request_user := c.Locals("user").(models.User)
+	username := c.Params("username")
+
+	err := request_user.BecomeGost(username)
+
+	if err != nil {
+		log.Println(err)
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.ErrInternalServerError)
+	}
+
+	return c.Status(fiber.StatusOK).JSON(fiber.Map{
+		"data": "profile hidden",
+	})
+}
+
+func becomeAlive(c *fiber.Ctx) error {
+	request_user := c.Locals("user").(models.User)
+	username := c.Params("username")
+
+	err := request_user.BecomeAlive(username)
+
+	if err != nil {
+		log.Println(err)
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.ErrInternalServerError)
+	}
+
+	return c.Status(fiber.StatusOK).JSON(fiber.Map{
+		"data": "profile visible",
 	})
 }
