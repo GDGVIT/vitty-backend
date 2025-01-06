@@ -11,4 +11,5 @@ func V2Handler(api fiber.Router) {
 	timetableHandler(group)
 	friendHandler(group)
 	reminderHandler(group)
+	noteHandler(group)
 }
