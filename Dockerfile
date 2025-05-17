@@ -18,6 +18,7 @@ RUN go build -o bin/vitty
 FROM alpine:3.15 AS runner
 
 WORKDIR /usr/src/app
+RUN mkdir ./data
 
 COPY --from=builder /usr/src/app/bin/vitty ./bin/vitty
 

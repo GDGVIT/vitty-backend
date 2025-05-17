@@ -27,8 +27,8 @@ var TimetableCommands = []*cli.Command{
 	{
 		Name:    "empty-rooms",
 		Aliases: []string{"er"},
-		Usage:   "Shows empty classrooms",
-		Action:  getEmptyRooms,
+		Usage:   "Generates empty classrooms file",
+		Action:  GenerateEmptyRooms,
 	},
 }
 
@@ -82,7 +82,7 @@ func fixSlotTimes(c *cli.Context) error {
 	return nil
 }
 
-func getEmptyRooms(c *cli.Context) error {
+func GenerateEmptyRooms(c *cli.Context) error {
 	reset := "\033[0m"
 	red := "\033[31m"
 	green := "\033[32m"
@@ -155,6 +155,7 @@ func getEmptyRooms(c *cli.Context) error {
 	if err != nil {
 		fmt.Println(red, "Failed")
 		fmt.Println("Error: ", err, reset)
+		return err
 	}
 
 	fmt.Println(green, "Complete", reset)

@@ -7,7 +7,11 @@ import (
 	"net/http"
 	"reflect"
 
+	"github.com/GDGVIT/vitty-backend/vitty-backend-api/api/middleware"
+	"github.com/GDGVIT/vitty-backend/vitty-backend-api/cli/commands"
+	"github.com/gofiber/fiber/v2"
 	"github.com/labstack/echo/v4"
+	"github.com/urfave/cli/v2"
 )
 
 type TemplateRenderer struct {
@@ -22,17 +26,20 @@ func (t *TemplateRenderer) Render(w io.Writer, name string, data interface{}, c 
 	return t.templates.ExecuteTemplate(w, name, data)
 }
 
-func AdminHandler(app *echo.Echo) {
-	group := app.Group("")
-	group.Use(JWTMiddleware)
-	group.GET("", GetModelsView)
-	group.GET("/:model", GetModelView)
-	group.GET("/:model/create", CreateItemView)
-	group.POST("/:model/create", CreateItem)
-	group.GET("/:model/:id", GetItemView)
-	group.GET("/:model/:id/edit", UpdateItemView)
-	group.PUT("/:model/:id", UpdateItem)
-	group.DELETE("/:model/:id", DeleteItem)
+func AdminHandler(app fiber.Router) {
+	group := app.Group("/admin")
+	group.Use(middleware.JWTAuthMiddleware)
+	group.Use(middleware.IsAdminMiddleware)
+	group.Post("/empty-classrooms/seed", seedEmptyClassrooms)
+
+	// group.Get("", GetModelsView)
+	// group.Get("/:model", GetModelView)
+	// group.Get("/:model/create", CreateItemView)
+	// group.Post("/:model/create", CreateItem)
+	// group.Get("/:model/:id", GetItemView)
+	// group.Get("/:model/:id/edit", UpdateItemView)
+	// group.Put("/:model/:id", UpdateItem)
+	// group.Delete("/:model/:id", DeleteItem)
 }
 
 func GetModelsView(c echo.Context) error {
@@ -211,5 +218,19 @@ func DeleteItem(c echo.Context) error {
 	model.Delete(item)
 	return c.JSON(http.StatusOK, map[string]interface{}{
 		"message": "Item deleted",
+	})
+
+}
+
+func seedEmptyClassrooms(c *fiber.Ctx) error {
+	err := commands.GenerateEmptyRooms(&cli.Context{})
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"error": "classrooms seed failed",
+		})
+	}
+
+	return c.Status(fiber.StatusOK).JSON(fiber.Map{
+		"message": "classrooms has been initialized",
 	})
 }

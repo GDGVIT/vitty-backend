@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"strings"
 
 	"github.com/GDGVIT/vitty-backend/vitty-backend-api/api/middleware"
 	"github.com/GDGVIT/vitty-backend/vitty-backend-api/api/serializers"
@@ -20,9 +21,9 @@ func userHandler(api fiber.Router) {
 	group.Get("/", getUsers)
 	group.Get("/search", searchUsers)
 	group.Get("/suggested", getSuggestedUsers)
+	group.Get("/emptyClassRooms", getEmptyClassRooms)
 	group.Get("/:username", getUser)
 	group.Delete("/:username", deleteUser)
-	group.Get("/emptyClassRooms", getEmptyClassRooms)
 }
 
 func searchUsers(c *fiber.Ctx) error {
@@ -89,14 +90,24 @@ func deleteUser(c *fiber.Ctx) error {
 }
 
 func getEmptyClassRooms(c *fiber.Ctx) error {
+	filterSlot := strings.ToUpper(c.Query("slot"))
+
+	if filterSlot == "" {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"detail": "please mention the slot",
+		})
+	}
+
 	file, err := os.Open("./data/freeClasses.json")
 	if err != nil {
 		log.Printf("Error opening file: %v", err)
-		return c.Status(fiber.StatusInternalServerError).SendString("Please contact vitty support")
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"error": "please contact vitty support",
+		})
 	}
 	defer file.Close()
 
-	var freeClasses interface{}
+	var freeClasses map[string]interface{}
 	decoder := json.NewDecoder(file)
 	err = decoder.Decode(&freeClasses)
 	if err != nil {
@@ -106,5 +117,13 @@ func getEmptyClassRooms(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.ErrInternalServerError)
 	}
 
-	return c.Status(fiber.StatusOK).JSON(freeClasses)
+	response := freeClasses[filterSlot]
+
+	if response == nil {
+		response = ""
+	}
+
+	return c.Status(fiber.StatusOK).JSON(map[string]interface{}{
+		filterSlot: response,
+	})
 }

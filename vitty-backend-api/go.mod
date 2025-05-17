@@ -6,6 +6,7 @@ require (
 	firebase.google.com/go v3.13.0+incompatible
 	github.com/gofiber/fiber/v2 v2.46.0
 	github.com/golang-jwt/jwt/v4 v4.5.0
+	github.com/joho/godotenv v1.5.1
 	github.com/labstack/echo/v4 v4.11.2
 	github.com/urfave/cli/v2 v2.25.6
 	golang.org/x/exp v0.0.0-20230522175609-2e198f4a06a1
