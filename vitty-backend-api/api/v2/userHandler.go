@@ -2,6 +2,7 @@ package v2
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"log"
 	"os"
@@ -13,6 +14,7 @@ import (
 	"github.com/GDGVIT/vitty-backend/vitty-backend-api/internal/models"
 	"github.com/GDGVIT/vitty-backend/vitty-backend-api/internal/utils"
 	"github.com/gofiber/fiber/v2"
+	"gorm.io/gorm"
 )
 
 func userHandler(api fiber.Router) {
@@ -65,10 +67,29 @@ func getUser(c *fiber.Ctx) error {
 	fmt.Println("Friends", user.IsFriendsWith(request_user))
 
 	if (user.Username == request_user.Username) ||
-		(user.IsFriendsWith(request_user)) ||
 		(request_user.Role == "admin") {
 		return c.Status(fiber.StatusOK).JSON(serializers.UserSerializer(user, request_user))
 	}
+
+	if user.IsFriendsWith(request_user) {
+		err, isGhosted := request_user.IsGhosted(username)
+
+		if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
+			log.Println(err)
+			return c.Status(fiber.StatusInternalServerError).JSON(fiber.ErrInternalServerError)
+
+		}
+
+		if isGhosted || errors.Is(err, gorm.ErrRecordNotFound) {
+			return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+				"code":  "1811",
+				"error": "",
+			})
+		}
+
+		return c.Status(fiber.StatusOK).JSON(serializers.UserSerializer(user, request_user))
+	}
+
 	return c.Status(fiber.StatusOK).JSON(serializers.UserCardSerializer(user, request_user))
 }
 

@@ -30,6 +30,13 @@ var TimetableCommands = []*cli.Command{
 		Usage:   "Generates empty classrooms file",
 		Action:  GenerateEmptyRooms,
 	},
+	{
+
+		Name:    "seed-course-table",
+		Aliases: []string{"sct"},
+		Usage:   "populate course table",
+		Action:  seedCourseTable,
+	},
 }
 
 func parseTimetable(c *cli.Context) error {
@@ -159,6 +166,34 @@ func GenerateEmptyRooms(c *cli.Context) error {
 	}
 
 	fmt.Println(green, "Complete", reset)
+
+	return nil
+}
+
+func seedCourseTable(c *cli.Context) error {
+	reset := "\033[0m"
+	red := "\033[31m"
+	green := "\033[32m"
+	cyan := "\033[36m "
+
+	fmt.Print(cyan, "Seeding.. ", reset)
+	err := database.DB.Exec(`
+		INSERT INTO courses (course_id, course_name)
+		SELECT
+		DISTINCT  ON(elems.data->>'code')
+			elems.data->>'code' AS CourseCode,
+			elems.data->>'name' AS CourseName
+		FROM
+			timetables,
+			jsonb_array_elements(timetables.slots::jsonb) AS elems(data)	
+	`).Error
+
+	if err != nil {
+		fmt.Println(red, "Failed")
+		fmt.Println("Error: ", err, reset)
+	}
+
+	fmt.Println(green, "Done", reset)
 
 	return nil
 }

@@ -16,3 +16,5 @@ POSTGRES_PORT=5432
 # ---------------------------------------------------------------
 OAUTH_CALLBACK_URL=https://<url>/auth/callback
 JWT_SECRET=secret
+# ---------------------------------------------------------------
+RUN_JOBS=false
