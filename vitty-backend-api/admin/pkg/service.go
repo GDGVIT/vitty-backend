@@ -42,7 +42,7 @@ func (s *AdminSvc) init() {
 			"message": "Hello World",
 		})
 	})
-	AdminHandler(s.WebApp)
+	// AdminHandler(s.WebApp)
 }
 
 func (s *AdminSvc) Register(model ModelInterface) {

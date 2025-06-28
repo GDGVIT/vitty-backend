@@ -1,6 +1,7 @@
 package v2
 
 import (
+	"github.com/GDGVIT/vitty-backend/vitty-backend-api/admin/pkg"
 	"github.com/gofiber/fiber/v2"
 )
 
@@ -13,4 +14,5 @@ func V2Handler(api fiber.Router) {
 	circleHandler(group)
 	reminderHandler(group)
 	noteHandler(group)
+	pkg.AdminHandler(group)
 }
