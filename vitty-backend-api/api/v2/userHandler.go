@@ -1,6 +1,7 @@
 package v2
 
 import (
+	"context"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -10,6 +11,7 @@ import (
 
 	"github.com/GDGVIT/vitty-backend/vitty-backend-api/api/middleware"
 	"github.com/GDGVIT/vitty-backend/vitty-backend-api/api/serializers"
+	"github.com/GDGVIT/vitty-backend/vitty-backend-api/internal/auth"
 	"github.com/GDGVIT/vitty-backend/vitty-backend-api/internal/database"
 	"github.com/GDGVIT/vitty-backend/vitty-backend-api/internal/models"
 	"github.com/GDGVIT/vitty-backend/vitty-backend-api/internal/utils"
@@ -96,15 +98,33 @@ func getUser(c *fiber.Ctx) error {
 func deleteUser(c *fiber.Ctx) error {
 	request_user := c.Locals("user").(models.User)
 
-	c.Params("username")
-	if request_user.Username != c.Params("username") && request_user.Role != "admin" {
+	username := c.Params("username")
+	if request_user.Username != username && request_user.Role != "admin" {
 		return c.Status(fiber.StatusForbidden).JSON(fiber.Map{
 			"detail": "You are not authorized to delete this user",
 		})
 	}
-	deleteUser := utils.GetUserByUsername(c.Params("username"))
+	userToDelete := utils.GetUserByUsername(username)
+	log.Println("User to delete:", userToDelete)
 
-	database.DB.Delete(&deleteUser)
+	if userToDelete.FirebaseUuid != "" {
+		client, err := auth.FirebaseApp.Auth(context.Background())
+		if err != nil {
+			log.Println("Error connecting to Firebase:", err)
+		} else {
+			err = client.DeleteUser(context.Background(), userToDelete.FirebaseUuid)
+			if err != nil {
+				log.Println("Error deleting user from Firebase:", err)
+			}
+		}
+	}
+
+	if err := userToDelete.DeleteUser(); err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"detail": "Error deleting user: " + err.Error(),
+		})
+	}
+
 	return c.Status(fiber.StatusOK).JSON(fiber.Map{
 		"detail": "User deleted successfully",
 	})

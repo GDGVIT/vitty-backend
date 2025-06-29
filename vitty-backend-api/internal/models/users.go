@@ -191,3 +191,14 @@ func (u *User) FindSuggestedOnMutualFriends() []*User {
 func (u *User) Save() error {
 	return database.DB.Save(&u).Error
 }
+
+func (u *User) DeleteUser() error {
+	tx := database.DB.Begin()
+
+	if err := tx.Delete(&u).Error; err != nil {
+		tx.Rollback()
+		return err
+	}
+
+	return tx.Commit().Error
+}
