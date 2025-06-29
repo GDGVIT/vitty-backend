@@ -7,9 +7,6 @@ import (
 	"log"
 	"os"
 	"strings"
-	"errors"
-	"fmt"
-	"log"
 
 	"github.com/GDGVIT/vitty-backend/vitty-backend-api/api/middleware"
 	"github.com/GDGVIT/vitty-backend/vitty-backend-api/api/serializers"
