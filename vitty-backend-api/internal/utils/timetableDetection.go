@@ -18,11 +18,6 @@ type TimetableSlotV1 struct {
 	Venue          string `json:"Venue"`
 }
 
-// Function to check if any array is empty
-func isStrArrEmpty(arr []string) bool {
-	return len(arr) == 0
-}
-
 func DetectTimetable(text string) ([]TimetableSlotV1, error) {
 	re := regexp.MustCompile(`[A-Z]{1,3}[0-9]{1,2}[\D]{1}[A-Z]{3,4}[0-9]{3,4}[A-Z]{0,1}[\D]{1}[A-Z]{2,3}[\D]{1}[A-Z]{2,6}[0-9]{2,4}[A-Za-z]{0,1}[\D]{1}[A-Z]{2,4}[0-9]{0,3}`)
 	slots := re.FindAllString(text, -1)
@@ -59,46 +54,64 @@ func DetectTimetableV2(text string) ([]TimetableSlotV1, error) {
 	text = strings.ReplaceAll(text, "\r", "")
 	var Slots []TimetableSlotV1
 
-	rows := regexp.MustCompile("(?s)[A-Z]{4}[0-9]{3}.+?Registered|[A-Z]{3}[0-9]{4}.+?Registered").FindAllString(text, -1)
-	re_code_n_name := regexp.MustCompile("[A-Z]{4}[0-9]{3}.+\n|[A-Z]{3}[0-9]{4}.+\n")
-	re_code := regexp.MustCompile("[A-Z]{4}[0-9]{3}[LPEM]|[A-Z]{3}[0-9]{4}[LPEM]")
-	re_venue := regexp.MustCompile("\n{3}[A-Z]+[0-9]{1,3}.+\n|\n{3}NIL\n")
-	re_slots := regexp.MustCompile(".+[1-9].+[-]\n|NIL.+[-]\n")
+	// Split the text into individual course entries based on numbered entries
+	// Look for pattern: number followed by course info, ending with "Registered" or "Registered and Approved"
+	rows := regexp.MustCompile(`(?s)\n\d+\n.*?Registered(?:\s+and\s+Approved)?`).FindAllString(text, -1)
+
+	// If no matches found, alternative for different formats
+	if len(rows) == 0 {
+		// splitting by course code
+		rows = regexp.MustCompile(`(?s)[A-Z]{3,4}[0-9]{3,4}[LPEMJ]?\s*-\s*[^\n]+.*?Registered(?:\s+and\s+Approved)?`).FindAllString(text, -1)
+	}
+
+	re_code_n_name := regexp.MustCompile(`([A-Z]{3,4}[0-9]{3,4}[LPEMJ]?)\s*-\s*([^\n(]+)`)
+	// captures venue names with optional spacing
+	re_venue := regexp.MustCompile(`\n\s*([A-Z]+[0-9]{1,4}[A-Za-z]?|NIL)\s*(?:\n|$)`)
+	// Updated slots regex to handle C1, E1+TE1, L39+L40, TCC1, etc.
+	// Look for patterns "C1 -", "L39+L40 -", "E1+TE1 -", "TCC1 -"
+	re_slots := regexp.MustCompile(`\n([A-Z]*[0-9]*[A-Z]{1,3}[0-9]{1,2}(?:\+[TA]*[A-Z]{1,3}[0-9]{1,2})*|NIL)\s*-\s*\n`)
 
 	for _, row := range rows {
-		if isStrArrEmpty(re_code_n_name.FindAllString(row, -1)) {
+		// course code and name
+		codeNameMatches := re_code_n_name.FindStringSubmatch(row)
+		if len(codeNameMatches) < 3 {
 			continue
 		}
-		code_n_name := re_code_n_name.FindAllString(row, -1)[0]
-		code := re_code.FindAllString(code_n_name, -1)
-		if isStrArrEmpty(code) {
-			continue
-		}
-		code_n := code[0]
-		name_n := strings.TrimRight(strings.TrimLeft(code_n_name, code_n)[3:], "\n")
+
+		code_n := codeNameMatches[1]
+		name_n := strings.TrimSpace(codeNameMatches[2])
+
 		if code_n == "" && name_n == "" {
 			continue
 		}
 
-		if isStrArrEmpty(re_venue.FindAllString(row, -1)) {
+		// venue
+		venueMatches := re_venue.FindStringSubmatch(row)
+		if len(venueMatches) < 2 {
 			continue
 		}
-		venue := re_venue.FindAllString(row, -1)[0]
-		venue = venue[3 : len(venue)-1]
+		venue := strings.TrimSpace(venueMatches[1])
 
-		if isStrArrEmpty(re_slots.FindAllString(row, -1)) {
+		// slots
+		slotMatches := re_slots.FindStringSubmatch(row)
+		if len(slotMatches) < 2 {
 			continue
 		}
-		slotStr := re_slots.FindAllString(row, -1)[0]
-		slots := strings.Split(slotStr[:len(slotStr)-3], "+")
+		slotStr := strings.TrimSpace(slotMatches[1])
+		slots := strings.Split(slotStr, "+")
 
 		for _, slot := range slots {
+			slot = strings.TrimSpace(slot)
+			if slot == "" || slot == "NIL" {
+				continue
+			}
+
 			var obj TimetableSlotV1
 			obj.Slot = slot
 			obj.CourseName = code_n
 			obj.CourseFullName = name_n
 			obj.Venue = venue
-			if slot[0:1] == "L" {
+			if len(slot) > 0 && slot[0:1] == "L" {
 				obj.CourseType = "Lab"
 			} else {
 				obj.CourseType = "Theory"
@@ -109,12 +122,9 @@ func DetectTimetableV2(text string) ([]TimetableSlotV1, error) {
 	}
 
 	if len(Slots) == 0 {
-		goto throwerror
+		return DetectTimetable(text)
 	}
 	return Slots, nil
-
-throwerror:
-	return DetectTimetable(text)
 }
 
 func SlotsV1ToSlotsV2(slots []TimetableSlotV1) []models.Slot {
