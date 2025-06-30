@@ -22,7 +22,9 @@ func circleHandler(api fiber.Router) {
 	group.Get("/requests/sent", getSentCircleRequests)
 	group.Post("/create/:circleName", createCircle)
 	group.Post("/sendRequest/:circleId/:username", sendCircleRequestToUser)
+	group.Post("/:circleId/generateJoinCode", generateCircleJoinCode)
 	group.Post("/acceptRequest/:circleId", acceptCircleRequest)
+	group.Post("/join", joinCircleByCode)
 	group.Post("/declineRequest/:circleId", declineCircleRequest)
 	group.Patch("/", updateCircleName)
 	group.Delete("/:circleId", deleteCircle)
@@ -279,6 +281,32 @@ func sendCircleRequestToUser(c *fiber.Ctx) error {
 	})
 }
 
+func generateCircleJoinCode(c *fiber.Ctx) error {
+	var circle models.Circles
+
+	circleId := c.Params("circleId")
+
+	circle.CircleId = circleId
+
+	joinCode := utils.GenerateJoinCode(10)
+	err := circle.CreateCircleJoinCode(joinCode)
+
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return c.Status(fiber.StatusBadRequest).JSON(fiber.ErrBadRequest)
+		}
+
+		log.Println(err)
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"detail": "circle share code generation failed",
+		})
+	}
+
+	return c.Status(fiber.StatusOK).JSON(fiber.Map{
+		"detail": "circle code generated",
+	})
+}
+
 func acceptCircleRequest(c *fiber.Ctx) error {
 	var circleRequest models.CircleRequest
 
@@ -305,6 +333,50 @@ func acceptCircleRequest(c *fiber.Ctx) error {
 
 	return c.Status(fiber.StatusOK).JSON(fiber.Map{
 		"detail": "request accepted successfully",
+	})
+}
+
+func joinCircleByCode(c *fiber.Ctx) error {
+	var circle models.Circles
+	var userCircle models.UsersCirclesJoin
+
+	joinCode := c.Query("code")
+	reqUser := c.Locals("user").(models.User).Username
+
+	err := circle.GetCircleByJoinCode(joinCode)
+
+	if err != nil {
+
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+				"detail": "invalid join code",
+			})
+		}
+		log.Println(err)
+	}
+
+	userCircle.CID = circle.CircleId
+	userCircle.CircleRole = "member"
+	userCircle.Uname = reqUser
+
+	err = userCircle.AddUserToCircle()
+
+	if err != nil {
+		log.Println(err)
+
+		if errors.Is(err, gorm.ErrDuplicatedKey) {
+			return c.Status(fiber.StatusConflict).JSON(fiber.Map{
+				"error": "you are already part of the circle",
+			})
+		}
+
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"error": "failed to join circle",
+		})
+	}
+
+	return c.Status(fiber.StatusOK).JSON(fiber.Map{
+		"detail": "joined circle successfully",
 	})
 }
 
