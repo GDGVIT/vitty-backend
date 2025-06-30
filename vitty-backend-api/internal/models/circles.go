@@ -11,11 +11,12 @@ import (
 )
 
 type Circles struct {
-	CircleId    string `json:"circle_id" gorm:"unique"`
-	CircleName  string `json:"circle_name" gorm:"primaryKey"`
-	Uname       string `json:"omitempty" gorm:"primaryKey"`
-	CircleSlots string
-	User        User `gorm:"foreignKey:Uname;references:Username;"`
+	CircleId       string `json:"circle_id" gorm:"unique"`
+	CircleName     string `json:"circle_name" gorm:"primaryKey"`
+	Uname          string `json:"omitempty" gorm:"primaryKey"`
+	CircleSlots    string
+	CircleJoinCode string `json:"circle_join_code" gorm:"default:null"`
+	User           User   `gorm:"foreignKey:Uname;references:Username;"`
 }
 
 func (c *Circles) CreateCircle() error {
@@ -23,8 +24,13 @@ func (c *Circles) CreateCircle() error {
 	return err
 }
 
-func (c *Circles) GetCircleByCircleId() error {
-	err := database.DB.Where(c).First(&c).Error
+func (c *Circles) GetCircleByCircleId(circleId string) error {
+	results := database.DB.Where("circle_join_code = ?", circleId).First(&c).Error
+	return results
+}
+
+func (c *Circles) GetCircleByJoinCode(joinCode string) error {
+	err := database.DB.Where("circle_join_code = ?", joinCode).First(&c).Error
 	return err
 }
 
@@ -51,6 +57,11 @@ func (c *Circles) UpdateCircleUsername(username string) error {
 func (c *Circles) updateCircleSlots(circleSlotMap map[string]string) error {
 	jsonString := circleSlotsToJson(circleSlotMap)
 	err := database.DB.Model(&Circles{}).Where(c).Update("circle_slots", jsonString).Error
+	return err
+}
+
+func (c *Circles) CreateCircleJoinCode(joinCode string) error {
+	err := database.DB.Model(&Circles{}).Where("circle_id like ?", c.CircleId).Update("circle_join_code", joinCode).Error
 	return err
 }
 

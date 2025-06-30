@@ -20,7 +20,8 @@ func Connect(debug string, dbUrls string) {
 		})
 	} else {
 		DB, err = gorm.Open(postgres.Open(dbUrls), &gorm.Config{
-			Logger: logger.Default.LogMode(logger.Silent),
+			Logger:         logger.Default.LogMode(logger.Silent),
+			TranslateError: true,
 		})
 	}
 
