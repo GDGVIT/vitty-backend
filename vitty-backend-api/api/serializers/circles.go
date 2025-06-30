@@ -8,10 +8,12 @@ func CirclesListSerializer(ucj []models.UsersCirclesJoin) []map[string]interface
 	for _, userCircle := range ucj {
 
 		out := map[string]interface{}{
-			"circle_id":   userCircle.CID,
-			"circle_role": userCircle.CircleRole,
-			"circle_name": userCircle.Circles.CircleName,
+			"circle_id":        userCircle.CID,
+			"circle_role":      userCircle.CircleRole,
+			"circle_name":      userCircle.Circles.CircleName,
+			"circle_join_code": userCircle.Circles.CircleJoinCode,
 		}
+
 		result = append(result, out)
 	}
 
@@ -39,11 +41,15 @@ func UsersListCircleSerializer(users []models.User) []map[string]interface{} {
 	var result []map[string]interface{}
 
 	for _, user := range users {
+
+		currStatus := user.GetCurrentStatus()
+
 		out := map[string]interface{}{
-			"username": user.Username,
-			"name":     user.Name,
-			"picture":  user.Picture,
-			"email":    user.Email,
+			"current_status": currStatus,
+			"username":       user.Username,
+			"name":           user.Name,
+			"picture":        user.Picture,
+			"email":          user.Email,
 		}
 		result = append(result, out)
 	}
