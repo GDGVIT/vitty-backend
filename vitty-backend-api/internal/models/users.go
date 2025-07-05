@@ -8,6 +8,19 @@ import (
 	"gorm.io/gorm/clause"
 )
 
+type Campus string
+
+const (
+	CampusVellore Campus = "vellore"
+	CampusChennai Campus = "chennai"
+	CampusBhopal  Campus = "bhopal"
+)
+
+// Valid checks if the campus value is valid
+func (c Campus) Valid() bool {
+	return c == CampusVellore || c == CampusChennai || c == CampusBhopal || c == ""
+}
+
 type User struct {
 	Username     string  `gorm:"primaryKey"`
 	RegNo        string  `gorm:"unique"`
@@ -15,6 +28,7 @@ type User struct {
 	Email        string  `gorm:"unique,not null"`
 	Role         string  `gorm:"default:normal"`
 	Picture      string  `gorm:"not null"`
+	Campus       *Campus `gorm:"type:varchar(20);default:null" json:"campus,omitempty"`
 	Friends      []*User `gorm:"constraint:OnDelete:CASCADE;many2many:user_friends;foreignKey:Username;joinForeignKey:UserUsername;References:Username;joinReferences:FriendUsername"`
 	FirebaseUuid string  `gorm:"unique"`
 }

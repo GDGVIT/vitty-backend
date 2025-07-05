@@ -10,6 +10,7 @@ func UserLoginSerializer(user models.User, token string) map[string]interface{} 
 		"name":     user.Name,
 		"picture":  user.Picture,
 		"role":     user.Role,
+		"campus":   user.Campus,
 		"token":    token,
 	}
 }
@@ -49,6 +50,7 @@ func UserSerializer(user models.User, request_user models.User) map[string]inter
 		"name":                 user.Name,
 		"picture":              user.Picture,
 		"email":                user.Email,
+		"campus":               user.Campus,
 		"timetable":            TimetableSerializer(user.GetTimeTable()),
 		"friend_status":        request_user.CheckFriendStatus(user),
 		"friends_count":        user.FriendsCount(),

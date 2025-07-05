@@ -27,6 +27,7 @@ func userHandler(api fiber.Router) {
 	group.Get("/suggested", getSuggestedUsers)
 	group.Get("/emptyClassRooms", getEmptyClassRooms)
 	group.Get("/:username", getUser)
+	group.Patch("/campus", updateUserCampus)
 	group.Delete("/:username", deleteUser)
 }
 
@@ -166,5 +167,42 @@ func getEmptyClassRooms(c *fiber.Ctx) error {
 
 	return c.Status(fiber.StatusOK).JSON(map[string]interface{}{
 		filterSlot: response,
+	})
+}
+
+func updateUserCampus(c *fiber.Ctx) error {
+	type RequestBody struct {
+		Campus *models.Campus `json:"campus"`
+	}
+
+	var body RequestBody
+	err := c.BodyParser(&body)
+	if err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"detail": err.Error(),
+		})
+	}
+
+	// Validate campus if provided
+	if body.Campus != nil && !body.Campus.Valid() {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"detail": "Invalid campus. Must be 'vellore' or 'chennai' or 'bhopal'",
+		})
+	}
+
+	requestUser := c.Locals("user").(models.User)
+
+	// Update the user's campus
+	err = database.DB.Model(&models.User{}).Where("username = ?", requestUser.Username).Update("campus", body.Campus).Error
+	if err != nil {
+		log.Println(err)
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"detail": "Failed to update campus",
+		})
+	}
+
+	return c.Status(fiber.StatusOK).JSON(fiber.Map{
+		"detail": "Campus updated successfully",
+		"campus": body.Campus,
 	})
 }

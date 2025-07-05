@@ -69,9 +69,10 @@ func checkUserExists(c *fiber.Ctx) error {
 
 func googleLogin(c *fiber.Ctx) error {
 	type RequestBody struct {
-		Id_token string `json:"id_token"`
-		RegNo    string `json:"reg_no,omitempty"`
-		Username string `json:"username,omitempty"`
+		Id_token string         `json:"id_token"`
+		RegNo    string         `json:"reg_no,omitempty"`
+		Username string         `json:"username,omitempty"`
+		Campus   *models.Campus `json:"campus,omitempty"`
 	}
 
 	var body RequestBody
@@ -79,6 +80,13 @@ func googleLogin(c *fiber.Ctx) error {
 	if err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
 			"detail": err.Error(),
+		})
+	}
+
+	// Validate campus if provided
+	if body.Campus != nil && !body.Campus.Valid() {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"detail": "Invalid campus. Must be 'vellore' or 'chennai' or 'bhopal'",
 		})
 	}
 
@@ -101,6 +109,10 @@ func googleLogin(c *fiber.Ctx) error {
 		if user.Picture != idtoken.Claims["picture"].(string) {
 			database.DB.Model(&user).Update("picture", idtoken.Claims["picture"].(string))
 		}
+		// Update campus if provided and different
+		if body.Campus != nil && user.Campus != body.Campus {
+			database.DB.Model(&user).Update("campus", body.Campus)
+		}
 	} else {
 
 		username := strings.ToLower(body.Username)
@@ -114,6 +126,7 @@ func googleLogin(c *fiber.Ctx) error {
 		user.Picture = idtoken.Claims["picture"].(string)
 		user.Username = username
 		user.RegNo = body.RegNo
+		user.Campus = body.Campus
 
 		err = database.DB.Create(&user).Error
 		if err != nil {
@@ -134,9 +147,10 @@ func googleLogin(c *fiber.Ctx) error {
 
 func firebaseLogin(c *fiber.Ctx) error {
 	type RequestBody struct {
-		UUID     string `json:"uuid"`
-		RegNo    string `json:"reg_no,omitempty"`
-		Username string `json:"username,omitempty"`
+		UUID     string         `json:"uuid"`
+		RegNo    string         `json:"reg_no,omitempty"`
+		Username string         `json:"username,omitempty"`
+		Campus   *models.Campus `json:"campus,omitempty"`
 	}
 
 	var body RequestBody
@@ -144,6 +158,12 @@ func firebaseLogin(c *fiber.Ctx) error {
 	if err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
 			"detail": err.Error(),
+		})
+	}
+
+	if body.Campus != nil && !body.Campus.Valid() {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"detail": "Invalid campus. Must be 'vellore' or 'chennai' or 'bhopal'",
 		})
 	}
 
@@ -172,6 +192,10 @@ func firebaseLogin(c *fiber.Ctx) error {
 		if user.Picture != u_rec.ProviderUserInfo[0].PhotoURL {
 			database.DB.Model(&user).Update("picture", u_rec.ProviderUserInfo[0].PhotoURL)
 		}
+
+		if body.Campus != nil && user.Campus != body.Campus {
+			database.DB.Model(&user).Update("campus", body.Campus)
+		}
 	} else {
 
 		username := strings.ToLower(body.Username)
@@ -187,6 +211,7 @@ func firebaseLogin(c *fiber.Ctx) error {
 		user.Name = u_rec.ProviderUserInfo[0].DisplayName
 		user.Username = username
 		user.RegNo = body.RegNo
+		user.Campus = body.Campus
 		err = database.DB.Create(&user).Error
 		if err != nil {
 			return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
