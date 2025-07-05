@@ -54,11 +54,14 @@ func DetectTimetableV2(text string) ([]TimetableSlotV1, error) {
 	text = strings.ReplaceAll(text, "\r", "")
 	var Slots []TimetableSlotV1
 
+	if slots := parseOtherFormat(text); len(slots) > 0 {
+		return slots, nil
+	}
+
 	// Split the text into individual course entries based on numbered entries
-	// Look for pattern: number followed by course info, ending with "Registered" or "Registered and Approved"
 	rows := regexp.MustCompile(`(?s)\n\d+\n.*?Registered(?:\s+and\s+Approved)?`).FindAllString(text, -1)
 
-	// If no matches found, alternative for different formats
+	// If no matches found, alternative
 	if len(rows) == 0 {
 		// splitting by course code
 		rows = regexp.MustCompile(`(?s)[A-Z]{3,4}[0-9]{3,4}[LPEMJ]?\s*-\s*[^\n]+.*?Registered(?:\s+and\s+Approved)?`).FindAllString(text, -1)
@@ -67,8 +70,6 @@ func DetectTimetableV2(text string) ([]TimetableSlotV1, error) {
 	re_code_n_name := regexp.MustCompile(`([A-Z]{3,4}[0-9]{3,4}[LPEMJ]?)\s*-\s*([^\n(]+)`)
 	// captures venue names with optional spacing
 	re_venue := regexp.MustCompile(`\n\s*([A-Z]+[0-9]{1,4}[A-Za-z]?|NIL)\s*(?:\n|$)`)
-	// Updated slots regex to handle C1, E1+TE1, L39+L40, TCC1, etc.
-	// Look for patterns "C1 -", "L39+L40 -", "E1+TE1 -", "TCC1 -"
 	re_slots := regexp.MustCompile(`\n([A-Z]*[0-9]*[A-Z]{1,3}[0-9]{1,2}(?:\+[TA]*[A-Z]{1,3}[0-9]{1,2})*|NIL)\s*-\s*\n`)
 
 	for _, row := range rows {
@@ -125,6 +126,64 @@ func DetectTimetableV2(text string) ([]TimetableSlotV1, error) {
 		return DetectTimetable(text)
 	}
 	return Slots, nil
+}
+
+func parseOtherFormat(text string) []TimetableSlotV1 {
+	var Slots []TimetableSlotV1
+
+	coursePattern := regexp.MustCompile(`(?s)\n(\d+)\n.*?Registered[^\n\d]*(?:\n|$)`)
+	courseMatches := coursePattern.FindAllString(text, -1)
+
+	for _, courseEntry := range courseMatches {
+		courseCodeNameRegex := regexp.MustCompile(`([A-Z]{3,4}[0-9]{3,4}[LPNEJM]?)\s*-\s*([^\n(]+)`)
+		codeNameMatch := courseCodeNameRegex.FindStringSubmatch(courseEntry)
+
+		if len(codeNameMatch) < 3 {
+			continue
+		}
+
+		courseCode := strings.TrimSpace(codeNameMatch[1])
+		courseName := strings.TrimSpace(codeNameMatch[2])
+
+		slotVenueRegex := regexp.MustCompile(`([A-Z]*[0-9]*[A-Z]{1,3}[0-9]{1,2}(?:\+[TA]*[A-Z]{1,3}[0-9]{1,2})*|NIL)\s*-\s*\n+\s*([A-Z0-9\s-]+?)(?:\n|$)`)
+		slotVenueMatch := slotVenueRegex.FindStringSubmatch(courseEntry)
+
+		if len(slotVenueMatch) < 3 {
+			continue
+		}
+
+		slotStr := strings.TrimSpace(slotVenueMatch[1])
+		venue := strings.TrimSpace(slotVenueMatch[2])
+
+		if slotStr == "NIL" || venue == "NIL" {
+			continue
+		}
+
+		slots := strings.Split(slotStr, "+")
+
+		for _, slot := range slots {
+			slot = strings.TrimSpace(slot)
+			if slot == "" {
+				continue
+			}
+
+			var obj TimetableSlotV1
+			obj.Slot = slot
+			obj.CourseName = courseCode
+			obj.CourseFullName = courseName
+			obj.Venue = venue
+
+			if strings.HasPrefix(slot, "L") || strings.HasSuffix(courseCode, "P") {
+				obj.CourseType = "Lab"
+			} else {
+				obj.CourseType = "Theory"
+			}
+
+			Slots = append(Slots, obj)
+		}
+	}
+
+	return Slots
 }
 
 func SlotsV1ToSlotsV2(slots []TimetableSlotV1) []models.Slot {
