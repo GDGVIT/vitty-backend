@@ -302,8 +302,12 @@ func generateCircleJoinCode(c *fiber.Ctx) error {
 		})
 	}
 
+	circle.CircleJoinCode = joinCode
+
 	return c.Status(fiber.StatusOK).JSON(fiber.Map{
-		"detail": "circle code generated",
+		"circle_id": circle.CircleId,
+		"join_code": circle.CircleJoinCode,
+		"detail":    "circle code generated",
 	})
 }
 
