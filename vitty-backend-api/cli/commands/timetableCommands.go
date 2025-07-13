@@ -76,8 +76,14 @@ func fixSlotTimes(c *cli.Context) error {
 	for _, user := range users {
 		timetable := user.GetTimeTable()
 		var slots []models.Slot
+
+		campus := "vellore"
+		if user.Campus != nil {
+			campus = string(*user.Campus)
+		}
+
 		for _, slot := range timetable.Slots {
-			err := slot.AddSlotTime()
+			err := slot.AddSlotTime(campus)
 			if err != nil {
 				fmt.Println("Error adding slot time: ", err)
 			}
@@ -128,7 +134,20 @@ func GenerateEmptyRooms(c *cli.Context) error {
 
 	emptyClassRoomsJson := make(map[string]interface{})
 
+	// Check slots from all campuses
+	allSlots := make(map[string]bool)
+
+	// Add Vellore/Chennai slots
 	for _, slot := range models.TimetableSlots {
+		allSlots[slot] = true
+	}
+
+	// Add Bhopal slots
+	for _, slot := range models.BhopalTimetableSlots {
+		allSlots[slot] = true
+	}
+
+	for slot := range allSlots {
 		freeClasses, err := findEmptyClassRooms(slot)
 
 		if err != nil {

@@ -41,7 +41,13 @@ func (u *User) GetCurrentStatus() map[string]interface{} {
 	now := time.Now()
 	currTime := time.Date(0, 1, 1, now.Hour(), now.Minute(), now.Second(), 0, time.Local)
 	// Remove date part
-	daySlots := u.GetTimeTable().GetDaySlots(time.Now().Weekday())
+
+	campus := "vellore"
+	if u.Campus != nil {
+		campus = string(*u.Campus)
+	}
+
+	daySlots := u.GetTimeTable().GetDaySlots(time.Now().Weekday(), campus)
 	for _, slot := range daySlots[time.Now().Weekday().String()] {
 		if slot.StartTime.Before(currTime) && slot.EndTime.After(currTime) {
 			return map[string]interface{}{

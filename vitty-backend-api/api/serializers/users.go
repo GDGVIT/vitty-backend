@@ -45,13 +45,18 @@ func UserListSerializer(users []*models.User, request_user models.User) []map[st
 }
 
 func UserSerializer(user models.User, request_user models.User) map[string]interface{} {
+	campus := "vellore"
+	if user.Campus != nil {
+		campus = string(*user.Campus)
+	}
+
 	return map[string]interface{}{
 		"username":             user.Username,
 		"name":                 user.Name,
 		"picture":              user.Picture,
 		"email":                user.Email,
 		"campus":               user.Campus,
-		"timetable":            TimetableSerializer(user.GetTimeTable()),
+		"timetable":            TimetableSerializer(user.GetTimeTable(), campus),
 		"friend_status":        request_user.CheckFriendStatus(user),
 		"friends_count":        user.FriendsCount(),
 		"mutual_friends_count": request_user.CountMutualFriends(user),

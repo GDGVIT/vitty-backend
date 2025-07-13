@@ -54,7 +54,12 @@ func DetectTimetableV2(text string) ([]TimetableSlotV1, error) {
 	text = strings.ReplaceAll(text, "\r", "")
 	var Slots []TimetableSlotV1
 
+	if slots := parseBhopalFormat(text); len(slots) > 0 {
+		return slots, nil
+	}
+
 	if slots := parseOtherFormat(text); len(slots) > 0 {
+		fmt.Println("Using other format parser")
 		return slots, nil
 	}
 
@@ -128,6 +133,54 @@ func DetectTimetableV2(text string) ([]TimetableSlotV1, error) {
 	return Slots, nil
 }
 
+func parseBhopalFormat(text string) []TimetableSlotV1 {
+	var Slots []TimetableSlotV1
+
+	rows := regexp.MustCompile(`(?s)\n\d+\n.*?Registered(?:\s+and\s+Approved)?`).FindAllString(text, -1)
+
+	for _, row := range rows {
+		codeNameMatches := regexp.MustCompile(`([A-Z]{3,4}[0-9]{3,4}[LPEMJ]?)\s*-\s*([^\n(]+)`).FindStringSubmatch(row)
+		if len(codeNameMatches) < 3 {
+			continue
+		}
+
+		courseCode := strings.TrimSpace(codeNameMatches[1])
+		courseName := strings.TrimSpace(codeNameMatches[2])
+
+		slotVenueMatches := regexp.MustCompile(`\n([A-Z][0-9]{2}(?:\+[A-Z][0-9]{2})*)\s*-\s*\n\s*([A-Z0-9-]+)`).FindStringSubmatch(row)
+		if len(slotVenueMatches) < 3 {
+			continue
+		}
+
+		slotStr := strings.TrimSpace(slotVenueMatches[1])
+		venue := strings.TrimSpace(slotVenueMatches[2])
+
+		if slotStr == "NIL" || venue == "NIL" {
+			continue
+		}
+
+		slots := strings.Split(slotStr, "+")
+
+		for _, slot := range slots {
+			slot = strings.TrimSpace(slot)
+			if slot == "" {
+				continue
+			}
+
+			var obj TimetableSlotV1
+			obj.Slot = slot
+			obj.CourseName = courseCode
+			obj.CourseFullName = courseName
+			obj.Venue = venue
+			obj.CourseType = "Theory"
+
+			Slots = append(Slots, obj)
+		}
+	}
+
+	return Slots
+}
+
 func parseOtherFormat(text string) []TimetableSlotV1 {
 	var Slots []TimetableSlotV1
 
@@ -186,7 +239,7 @@ func parseOtherFormat(text string) []TimetableSlotV1 {
 	return Slots
 }
 
-func SlotsV1ToSlotsV2(slots []TimetableSlotV1) []models.Slot {
+func SlotsV1ToSlotsV2(slots []TimetableSlotV1, campus string) []models.Slot {
 	var timetableSlots []models.Slot
 	for _, slot := range slots {
 		if slot.CourseFullName == "" {
@@ -199,7 +252,9 @@ func SlotsV1ToSlotsV2(slots []TimetableSlotV1) []models.Slot {
 			Type:  slot.CourseType,
 			Venue: slot.Venue,
 		}
-		slotV2.AddSlotTime()
+
+		slotV2.AddSlotTime(campus)
+
 		timetableSlots = append(timetableSlots, slotV2)
 	}
 	return timetableSlots

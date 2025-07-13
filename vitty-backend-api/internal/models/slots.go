@@ -68,3 +68,102 @@ var LabTimings = []Timings{
 	{StartTime: "0000-01-01T17:40", EndTime: "0000-01-01T18:30"},
 	{StartTime: "0000-01-01T18:31", EndTime: "0000-01-01T19:20"},
 }
+
+var BhopalTimetableSlots = []string{"A11", "B11", "C11", "A21", "A14", "B21", "C21", "D11", "E11", "F11", "D21", "E14", "E21", "F21",
+	"A12", "B12", "C12", "A22", "B14", "B22", "A24", "D12", "E12", "F12", "D22", "F14", "E22", "F22",
+	"A13", "B13", "C13", "A23", "C14", "B23", "B24", "D13", "E13", "F13", "D23", "D14", "D24", "E23"}
+
+var BhopalDailySlots = map[string]map[string][]string{
+	"Monday": {
+		"Theory": {"A11", "B11", "C11", "A21", "A14", "B21", "C21"},
+		"Lab":    {},
+	},
+	"Tuesday": {
+		"Theory": {"D11", "E11", "F11", "D21", "E14", "E21", "F21"},
+		"Lab":    {},
+	},
+	"Wednesday": {
+		"Theory": {"A12", "B12", "C12", "A22", "B14", "B22", "A24"},
+		"Lab":    {},
+	},
+	"Thursday": {
+		"Theory": {"D12", "E12", "F12", "D22", "F14", "E22", "F22"},
+		"Lab":    {},
+	},
+	"Friday": {
+		"Theory": {"A13", "B13", "C13", "A23", "C14", "B23", "B24"},
+		"Lab":    {},
+	},
+	"Saturday": {
+		"Theory": {"D13", "E13", "F13", "D23", "D14", "D24", "E23"},
+		"Lab":    {},
+	},
+	"Sunday": {
+		"Theory": {},
+		"Lab":    {},
+	},
+}
+
+// Bhopal-specific timings (7 slots per day)
+var BhopalTheoryTimings = []Timings{
+	{StartTime: "0000-01-01T08:30", EndTime: "0000-01-01T10:00"},
+	{StartTime: "0000-01-01T10:05", EndTime: "0000-01-01T11:35"},
+	{StartTime: "0000-01-01T11:40", EndTime: "0000-01-01T13:10"},
+	{StartTime: "0000-01-01T13:15", EndTime: "0000-01-01T14:45"},
+	{StartTime: "0000-01-01T14:50", EndTime: "0000-01-01T16:20"},
+	{StartTime: "0000-01-01T16:25", EndTime: "0000-01-01T17:55"},
+	{StartTime: "0000-01-01T18:00", EndTime: "0000-01-01T19:30"},
+}
+
+var BhopalLabTimings = []Timings{}
+
+// Bhopal slot to timing mapping
+var BhopalSlotToTimingMap = map[string]int{
+	// Slot 0: 08:30-10:00
+	"A11": 0, "D11": 0, "A12": 0, "D12": 0, "A13": 0, "D13": 0,
+	// Slot 1: 10:05-11:35
+	"B11": 1, "E11": 1, "B12": 1, "E12": 1, "B13": 1, "E13": 1,
+	// Slot 2: 11:40-13:10
+	"C11": 2, "F11": 2, "C12": 2, "F12": 2, "C13": 2, "F13": 2,
+	// Slot 3: 13:15-14:45
+	"A21": 3, "D21": 3, "A22": 3, "D22": 3, "A23": 3, "D23": 3,
+	// Slot 4: 14:50-16:20
+	"A14": 4, "E14": 4, "B14": 4, "F14": 4, "C14": 4, "D14": 4,
+	// Slot 5: 16:25-17:55
+	"B21": 5, "E21": 5, "B22": 5, "E22": 5, "B23": 5, "D24": 5,
+	// Slot 6: 18:00-19:30
+	"C21": 6, "F21": 6, "A24": 6, "F22": 6, "B24": 6, "E23": 6,
+}
+
+func GetDailySlotsForCampus(campus string) map[string]map[string][]string {
+	if campus == "bhopal" {
+		return BhopalDailySlots
+	}
+	return DailySlots
+}
+
+func GetTimetableSlotsForCampus(campus string) []string {
+	if campus == "bhopal" {
+		return BhopalTimetableSlots
+	}
+	return TimetableSlots
+}
+
+func GetTheoryTimingsForCampus(campus string) []Timings {
+	if campus == "bhopal" {
+		return BhopalTheoryTimings
+	}
+	return TheoryTimings
+}
+
+func GetLabTimingsForCampus(campus string) []Timings {
+	if campus == "bhopal" {
+		return BhopalLabTimings
+	}
+	return LabTimings
+}
+
+func GetBhopalSlotTimingIndex(slot string) (int, bool) {
+	index, exists := BhopalSlotToTimingMap[slot]
+	return index, exists
+}

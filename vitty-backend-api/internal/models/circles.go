@@ -78,7 +78,13 @@ func (c *Circles) DeleteCircle() error {
 func (c *Circles) ComputeCircleSlots(user User, recompute bool) error {
 
 	resultMap := make(map[string]string)
-	dayWiseSlots := user.GetTimeTable().GetDaywiseTimetable()
+
+	campus := "vellore"
+	if user.Campus != nil {
+		campus = string(*user.Campus)
+	}
+
+	dayWiseSlots := user.GetTimeTable().GetDaywiseTimetable(campus)
 
 	var err error
 	var circleSlotMap map[string]string

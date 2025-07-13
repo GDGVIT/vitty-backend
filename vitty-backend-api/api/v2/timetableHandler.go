@@ -24,6 +24,7 @@ func parseTimetable(c *fiber.Ctx) error {
 	// Get data from body
 	var body struct {
 		Timetable string `json:"timetable"`
+		Campus    string `json:"campus,omitempty"`
 	}
 	if err := c.BodyParser(&body); err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
@@ -39,7 +40,11 @@ func parseTimetable(c *fiber.Ctx) error {
 		})
 	}
 
-	slots := utils.SlotsV1ToSlotsV2(timetableV1)
+	campus := "vellore"
+	if body.Campus != "" {
+		campus = body.Campus
+	}
+	slots := utils.SlotsV1ToSlotsV2(timetableV1, campus)
 	return c.Status(fiber.StatusOK).JSON(fiber.Map{
 		"timetable": slots,
 	})
@@ -91,7 +96,12 @@ func createTimetable(c *fiber.Ctx) error {
 			})
 		}
 	}
-	return c.Status(fiber.StatusCreated).JSON(serializers.TimetableSerializer(user.GetTimeTable()))
+	campus := "vellore"
+	if user.Campus != nil {
+		campus = string(*user.Campus)
+	}
+
+	return c.Status(fiber.StatusCreated).JSON(serializers.TimetableSerializer(user.GetTimeTable(), campus))
 }
 
 func getTimetable(c *fiber.Ctx) error {
@@ -114,7 +124,13 @@ func getTimetable(c *fiber.Ctx) error {
 	}
 
 	timetable := user.GetTimeTable()
-	return c.Status(fiber.StatusOK).JSON(serializers.TimetableSerializer(timetable))
+
+	campus := "vellore"
+	if user.Campus != nil {
+		campus = string(*user.Campus)
+	}
+
+	return c.Status(fiber.StatusOK).JSON(serializers.TimetableSerializer(timetable, campus))
 }
 
 func deleteTimetable(c *fiber.Ctx) error {
