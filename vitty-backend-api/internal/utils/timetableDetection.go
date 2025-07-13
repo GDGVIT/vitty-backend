@@ -54,12 +54,11 @@ func DetectTimetableV2(text string) ([]TimetableSlotV1, error) {
 	text = strings.ReplaceAll(text, "\r", "")
 	var Slots []TimetableSlotV1
 
-	if slots := parseBhopalFormat(text); len(slots) > 0 {
+	if slots := parseChennaiFormat(text); len(slots) > 0 {
 		return slots, nil
 	}
 
-	if slots := parseOtherFormat(text); len(slots) > 0 {
-		fmt.Println("Using other format parser")
+	if slots := parseBhopalFormat(text); len(slots) > 0 {
 		return slots, nil
 	}
 
@@ -181,7 +180,7 @@ func parseBhopalFormat(text string) []TimetableSlotV1 {
 	return Slots
 }
 
-func parseOtherFormat(text string) []TimetableSlotV1 {
+func parseChennaiFormat(text string) []TimetableSlotV1 {
 	var Slots []TimetableSlotV1
 
 	coursePattern := regexp.MustCompile(`(?s)\n(\d+)\n.*?Registered[^\n\d]*(?:\n|$)`)
@@ -226,7 +225,7 @@ func parseOtherFormat(text string) []TimetableSlotV1 {
 			obj.CourseFullName = courseName
 			obj.Venue = venue
 
-			if strings.HasPrefix(slot, "L") || strings.HasSuffix(courseCode, "P") {
+			if len(slot) > 0 && slot[0:1] == "L" {
 				obj.CourseType = "Lab"
 			} else {
 				obj.CourseType = "Theory"

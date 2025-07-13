@@ -56,6 +56,47 @@ func (t Timetable) GetDaySlots(day time.Weekday, campus string) map[string][]Slo
 		return resp
 	}
 
+	if campus == "chennai" {
+		for _, slot := range t.Slots {
+			if slot.Type == "Theory" && slices.Contains(daySlots["Theory"], slot.Slot) {
+				if timingIndex, exists := GetChennaiSlotTimingIndex(slot.Slot); exists {
+					theoryTimings := GetTheoryTimingsForCampus(campus)
+					if timingIndex < len(theoryTimings) {
+						var err error
+						slot.StartTime, err = time.ParseInLocation(STD_REF_TIME, theoryTimings[timingIndex].StartTime, time.Local)
+						if err != nil {
+							log.Println("Error parsing time: ", err)
+							return nil
+						}
+						slot.EndTime, err = time.ParseInLocation(STD_REF_TIME, theoryTimings[timingIndex].EndTime, time.Local)
+						if err != nil {
+							log.Println("Error parsing time: ", err)
+							return nil
+						}
+						data = append(data, slot)
+					}
+				}
+			} else if slot.Type == "Lab" && slices.Contains(daySlots["Lab"], slot.Slot) {
+				labTimings := GetLabTimingsForCampus(campus)
+				index := slices.Index(daySlots["Lab"], slot.Slot)
+				var err error
+				slot.StartTime, err = time.ParseInLocation(STD_REF_TIME, labTimings[index].StartTime, time.Local)
+				if err != nil {
+					log.Println("Error parsing time: ", err)
+					return nil
+				}
+				slot.EndTime, err = time.ParseInLocation(STD_REF_TIME, labTimings[index].EndTime, time.Local)
+				if err != nil {
+					log.Println("Error parsing time: ", err)
+					return nil
+				}
+				data = append(data, slot)
+			}
+		}
+		resp[day.String()] = data
+		return resp
+	}
+
 	theoryTimings := GetTheoryTimingsForCampus(campus)
 	labTimings := GetLabTimingsForCampus(campus)
 	labSlot := ""
@@ -138,7 +179,48 @@ func (t Timetable) GetDaywiseTimetable(campus string) map[string][]Slot {
 		return resp
 	}
 
-	// Original logic for Vellore/Chennai
+	if campus == "chennai" {
+		for _, slot := range t.Slots {
+			for day, value := range dailySlots {
+				if slices.Contains(value["Theory"], slot.Slot) {
+					if timingIndex, exists := GetChennaiSlotTimingIndex(slot.Slot); exists {
+						theoryTimings := GetTheoryTimingsForCampus(campus)
+						if timingIndex < len(theoryTimings) {
+							var err error
+							slot.StartTime, err = time.ParseInLocation(STD_REF_TIME, theoryTimings[timingIndex].StartTime, time.Local)
+							if err != nil {
+								log.Println("Error parsing time: ", err)
+								return nil
+							}
+							slot.EndTime, err = time.ParseInLocation(STD_REF_TIME, theoryTimings[timingIndex].EndTime, time.Local)
+							if err != nil {
+								log.Println("Error parsing time: ", err)
+								return nil
+							}
+							resp[day] = append(resp[day], slot)
+						}
+					}
+				} else if slices.Contains(value["Lab"], slot.Slot) {
+					index := slices.Index(value["Lab"], slot.Slot)
+					labTimings := GetLabTimingsForCampus(campus)
+					var err error
+					slot.StartTime, err = time.ParseInLocation(STD_REF_TIME, labTimings[index].StartTime, time.Local)
+					if err != nil {
+						log.Println("Error parsing time: ", err)
+						return nil
+					}
+					slot.EndTime, err = time.ParseInLocation(STD_REF_TIME, labTimings[index].EndTime, time.Local)
+					if err != nil {
+						log.Println("Error parsing time: ", err)
+						return nil
+					}
+					resp[day] = append(resp[day], slot)
+				}
+			}
+		}
+		return resp
+	}
+
 	theoryTimings := GetTheoryTimingsForCampus(campus)
 	labTimings := GetLabTimingsForCampus(campus)
 	labSlot := ""
@@ -206,15 +288,55 @@ func (s *Slot) AddSlotTime(campus string) error {
 					if err != nil {
 						return err
 					}
-				} else {
+					log.Printf("Bhopal slot %s assigned timing: %s - %s", s.Slot, s.StartTime.Format("15:04"), s.EndTime.Format("15:04"))
 				}
-			} else {
 			}
-		} else {
 		}
 		return nil
 	}
 
+	if campus == "chennai" {
+		if s.Type == "Theory" {
+			if timingIndex, exists := GetChennaiSlotTimingIndex(s.Slot); exists {
+				theoryTimings := GetTheoryTimingsForCampus(campus)
+				if timingIndex < len(theoryTimings) {
+					var err error
+					s.StartTime, err = time.ParseInLocation(STD_REF_TIME, theoryTimings[timingIndex].StartTime, time.Local)
+					if err != nil {
+						return err
+					}
+					s.EndTime, err = time.ParseInLocation(STD_REF_TIME, theoryTimings[timingIndex].EndTime, time.Local)
+					if err != nil {
+						return err
+					}
+					log.Printf("Chennai slot %s assigned timing: %s - %s", s.Slot, s.StartTime.Format("15:04"), s.EndTime.Format("15:04"))
+				}
+			}
+		} else if s.Type == "Lab" {
+			// Chennai lab timing uses same logic as Vellore
+			labTimings := GetLabTimingsForCampus(campus)
+			dailySlots := GetDailySlotsForCampus(campus)
+
+			for _, value := range dailySlots {
+				if slices.Contains(value["Lab"], s.Slot) {
+					index := slices.Index(value["Lab"], s.Slot)
+					var err error
+					s.StartTime, err = time.ParseInLocation(STD_REF_TIME, labTimings[index].StartTime, time.Local)
+					if err != nil {
+						return err
+					}
+					s.EndTime, err = time.ParseInLocation(STD_REF_TIME, labTimings[index].EndTime, time.Local)
+					if err != nil {
+						return err
+					}
+					break
+				}
+			}
+		}
+		return nil
+	}
+
+	// Default Vellore campus logic
 	dailySlots := GetDailySlotsForCampus(campus)
 	theoryTimings := GetTheoryTimingsForCampus(campus)
 	labTimings := GetLabTimingsForCampus(campus)
