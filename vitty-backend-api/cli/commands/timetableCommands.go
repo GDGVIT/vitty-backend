@@ -16,7 +16,14 @@ var TimetableCommands = []*cli.Command{
 		Name:    "parse-timetable",
 		Aliases: []string{"ptt"},
 		Usage:   "Parse a timetable",
-		Action:  parseTimetable,
+		Flags: []cli.Flag{
+			&cli.StringFlag{
+				Name:  "campus",
+				Value: "vellore",
+				Usage: "Campus to parse timetable for (vellore, chennai, bhopal)",
+			},
+		},
+		Action: parseTimetable,
 	},
 	{
 		Name:    "fix-slot-times",
@@ -43,9 +50,13 @@ func parseTimetable(c *cli.Context) error {
 	var timetableText string
 	fmt.Println("Enter the timetable text:")
 	fmt.Scanln(&timetableText)
+	campus := c.String("campus")
+	if campus == "" {
+		campus = "vellore"
+	}
 
 	var timetableV1 []utils.TimetableSlotV1
-	timetableV1, err := utils.DetectTimetableV2(timetableText)
+	timetableV1, err := utils.DetectTimetableV2(timetableText, campus)
 	if err != nil {
 		return err
 	}

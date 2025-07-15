@@ -44,7 +44,7 @@ func getTimetableV2(c *fiber.Ctx) error {
 		})
 	}
 
-	slots, err := utils.DetectTimetableV2(response.Data)
+	slots, err := utils.DetectTimetableV2(response.Data, "")
 	if err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
 			"detail": err.Error(),

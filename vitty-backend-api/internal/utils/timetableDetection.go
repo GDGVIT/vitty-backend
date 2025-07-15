@@ -49,86 +49,91 @@ func DetectTimetable(text string) ([]TimetableSlotV1, error) {
 	return Slots, nil
 }
 
-func DetectTimetableV2(text string) ([]TimetableSlotV1, error) {
+func DetectTimetableV2(text string, campus string) ([]TimetableSlotV1, error) {
 	fmt.Println("Detecting timetable...")
 	text = strings.ReplaceAll(text, "\r", "")
 	var Slots []TimetableSlotV1
 
-	if slots := parseChennaiFormat(text); len(slots) > 0 {
-		return slots, nil
-	}
+	switch strings.ToLower(campus) {
+	case "chennai":
+		if slots := parseChennaiFormat(text); len(slots) > 0 {
+			return slots, nil
+		}
+	case "bhopal":
+		if slots := parseBhopalFormat(text); len(slots) > 0 {
+			return slots, nil
+		}
+	default:
 
-	if slots := parseBhopalFormat(text); len(slots) > 0 {
-		return slots, nil
-	}
+		// Split the text into individual course entries based on numbered entries
+		rows := regexp.MustCompile(`(?s)\n\d+\n.*?Registered(?:\s+and\s+Approved)?`).FindAllString(text, -1)
 
-	// Split the text into individual course entries based on numbered entries
-	rows := regexp.MustCompile(`(?s)\n\d+\n.*?Registered(?:\s+and\s+Approved)?`).FindAllString(text, -1)
-
-	// If no matches found, alternative
-	if len(rows) == 0 {
-		// splitting by course code
-		rows = regexp.MustCompile(`(?s)[A-Z]{3,4}[0-9]{3,4}[LPEMJ]?\s*-\s*[^\n]+.*?Registered(?:\s+and\s+Approved)?`).FindAllString(text, -1)
-	}
-
-	re_code_n_name := regexp.MustCompile(`([A-Z]{3,4}[0-9]{3,4}[LPEMJ]?)\s*-\s*([^\n(]+)`)
-	// captures venue names with optional spacing
-	re_venue := regexp.MustCompile(`\n\s*([A-Z]+[0-9]{1,4}[A-Za-z]?|NIL)\s*(?:\n|$)`)
-	re_slots := regexp.MustCompile(`\n([A-Z]*[0-9]*[A-Z]{1,3}[0-9]{1,2}(?:\+[TA]*[A-Z]{1,3}[0-9]{1,2})*|NIL)\s*-\s*\n`)
-
-	for _, row := range rows {
-		// course code and name
-		codeNameMatches := re_code_n_name.FindStringSubmatch(row)
-		if len(codeNameMatches) < 3 {
-			continue
+		// If no matches found, alternative
+		if len(rows) == 0 {
+			// splitting by course code
+			rows = regexp.MustCompile(`(?s)[A-Z]{3,4}[0-9]{3,4}[LPEMJ]?\s*-\s*[^\n]+.*?Registered(?:\s+and\s+Approved)?`).FindAllString(text, -1)
 		}
 
-		code_n := codeNameMatches[1]
-		name_n := strings.TrimSpace(codeNameMatches[2])
+		re_code_n_name := regexp.MustCompile(`([A-Z]{3,4}[0-9]{3,4}[LPEMJ]?)\s*-\s*([^\n(]+)`)
+		// captures venue names with optional spacing
+		re_venue := regexp.MustCompile(`\n\s*([A-Z]+[0-9]{1,4}[A-Za-z]?|NIL)\s*(?:\n|$)`)
+		re_slots := regexp.MustCompile(`\n([A-Z]*[0-9]*[A-Z]{1,3}[0-9]{1,2}(?:\+[TA]*[A-Z]{1,3}[0-9]{1,2})*|NIL)\s*-\s*\n`)
 
-		if code_n == "" && name_n == "" {
-			continue
-		}
-
-		// venue
-		venueMatches := re_venue.FindStringSubmatch(row)
-		if len(venueMatches) < 2 {
-			continue
-		}
-		venue := strings.TrimSpace(venueMatches[1])
-
-		// slots
-		slotMatches := re_slots.FindStringSubmatch(row)
-		if len(slotMatches) < 2 {
-			continue
-		}
-		slotStr := strings.TrimSpace(slotMatches[1])
-		slots := strings.Split(slotStr, "+")
-
-		for _, slot := range slots {
-			slot = strings.TrimSpace(slot)
-			if slot == "" || slot == "NIL" {
+		for _, row := range rows {
+			// course code and name
+			codeNameMatches := re_code_n_name.FindStringSubmatch(row)
+			if len(codeNameMatches) < 3 {
 				continue
 			}
 
-			var obj TimetableSlotV1
-			obj.Slot = slot
-			obj.CourseName = code_n
-			obj.CourseFullName = name_n
-			obj.Venue = venue
-			if len(slot) > 0 && slot[0:1] == "L" {
-				obj.CourseType = "Lab"
-			} else {
-				obj.CourseType = "Theory"
+			code_n := codeNameMatches[1]
+			name_n := strings.TrimSpace(codeNameMatches[2])
+
+			if code_n == "" && name_n == "" {
+				continue
 			}
 
-			Slots = append(Slots, obj)
+			// venue
+			venueMatches := re_venue.FindStringSubmatch(row)
+			if len(venueMatches) < 2 {
+				continue
+			}
+			venue := strings.TrimSpace(venueMatches[1])
+
+			// slots
+			slotMatches := re_slots.FindStringSubmatch(row)
+			if len(slotMatches) < 2 {
+				continue
+			}
+			slotStr := strings.TrimSpace(slotMatches[1])
+			slots := strings.Split(slotStr, "+")
+
+			for _, slot := range slots {
+				slot = strings.TrimSpace(slot)
+				if slot == "" || slot == "NIL" {
+					continue
+				}
+
+				var obj TimetableSlotV1
+				obj.Slot = slot
+				obj.CourseName = code_n
+				obj.CourseFullName = name_n
+				obj.Venue = venue
+				if len(slot) > 0 && slot[0:1] == "L" {
+					obj.CourseType = "Lab"
+				} else {
+					obj.CourseType = "Theory"
+				}
+
+				Slots = append(Slots, obj)
+			}
+		}
+
+		if len(Slots) == 0 {
+			return DetectTimetable(text)
 		}
 	}
 
-	if len(Slots) == 0 {
-		return DetectTimetable(text)
-	}
 	return Slots, nil
 }
 

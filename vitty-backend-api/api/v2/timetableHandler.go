@@ -33,7 +33,7 @@ func parseTimetable(c *fiber.Ctx) error {
 	}
 
 	var timetableV1 []utils.TimetableSlotV1
-	timetableV1, err := utils.DetectTimetableV2(body.Timetable)
+	timetableV1, err := utils.DetectTimetableV2(body.Timetable, body.Campus)
 	if err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
 			"detail": err.Error(),
