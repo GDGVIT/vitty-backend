@@ -17,6 +17,7 @@ func circleHandler(api fiber.Router) {
 	group.Use(middleware.JWTAuthMiddleware)
 	group.Get("/", getCircles)
 	group.Get("/:circleId", getUsersOfCircle)
+	group.Get("/:circleId/:username", getCircleMemberTimetable)
 	group.Get("/leisure/:circleId", getLeisureTime)
 	group.Get("/requests/received", getReceivedCircleRequests)
 	group.Get("/requests/sent", getSentCircleRequests)
@@ -96,6 +97,60 @@ func getUsersOfCircle(c *fiber.Ctx) error {
 
 	return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
 		"error": "users list fetch failed",
+	})
+}
+
+func getCircleMemberTimetable(c *fiber.Ctx) error {
+	var userCircle models.UsersCirclesJoin
+
+	circleId := c.Params("circleId")
+	username := c.Params("username")
+	requestUser := c.Locals("user").(models.User).Username
+
+	userCircle.CID = circleId
+	userCircle.Uname = requestUser
+	err, isPartOfCircle := userCircle.IsUserOfCircle()
+
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+				"error": "invalid circle id",
+			})
+		}
+		log.Println(err)
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"error": "user authorization could not be verified",
+		})
+	}
+
+	if !isPartOfCircle {
+		return c.Status(fiber.StatusForbidden).JSON(fiber.Map{
+			"error": "you are not part of this circle",
+		})
+	}
+
+	if !utils.CheckUserExists(username) {
+		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{
+			"detail": "User not found",
+		})
+	}
+
+	userCircle.Uname = username
+	err, isTargetUserInCircle := userCircle.IsUserOfCircle()
+	if err != nil || !isTargetUserInCircle {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"error": "user is not part of this circle",
+		})
+	}
+
+	user := utils.GetUserByUsername(username)
+	campus := "vellore"
+	if user.Campus != nil {
+		campus = string(*user.Campus)
+	}
+
+	return c.Status(fiber.StatusOK).JSON(fiber.Map{
+		"timetable": serializers.TimetableSerializer(user.GetTimeTable(), campus),
 	})
 }
 
