@@ -149,9 +149,7 @@ func getCircleMemberTimetable(c *fiber.Ctx) error {
 		campus = string(*user.Campus)
 	}
 
-	return c.Status(fiber.StatusOK).JSON(fiber.Map{
-		"timetable": serializers.TimetableSerializer(user.GetTimeTable(), campus),
-	})
+	return c.Status(fiber.StatusOK).JSON(serializers.TimetableSerializer(user.GetTimeTable(), campus))
 }
 
 func getLeisureTime(c *fiber.Ctx) error {
