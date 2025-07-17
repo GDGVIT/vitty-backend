@@ -59,10 +59,14 @@ func DetectTimetableV2(text string, campus string) ([]TimetableSlotV1, error) {
 		if slots := parseChennaiFormat(text); len(slots) > 0 {
 			return slots, nil
 		}
+		return nil, fmt.Errorf("no valid Chennai timetable format detected - please check if you selected the correct campus")
+
 	case "bhopal":
 		if slots := parseBhopalFormat(text); len(slots) > 0 {
 			return slots, nil
 		}
+		return nil, fmt.Errorf("no valid Bhopal timetable format detected - please check if you selected the correct campus")
+
 	default:
 
 		// Split the text into individual course entries based on numbered entries

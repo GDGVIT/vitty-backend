@@ -145,16 +145,9 @@ func GenerateEmptyRooms(c *cli.Context) error {
 
 	emptyClassRoomsJson := make(map[string]interface{})
 
-	// Check slots from all campuses
 	allSlots := make(map[string]bool)
 
-	// Add Vellore/Chennai slots
 	for _, slot := range models.TimetableSlots {
-		allSlots[slot] = true
-	}
-
-	// Add Bhopal slots
-	for _, slot := range models.BhopalTimetableSlots {
 		allSlots[slot] = true
 	}
 

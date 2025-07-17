@@ -18,7 +18,7 @@ const (
 
 // Valid checks if the campus value is valid
 func (c Campus) Valid() bool {
-	return c == CampusVellore || c == CampusChennai || c == CampusBhopal || c == ""
+	return c == CampusVellore || c == CampusChennai || c == CampusBhopal
 }
 
 type User struct {
