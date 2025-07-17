@@ -277,8 +277,19 @@ func createCircle(c *fiber.Ctx) error {
 		})
 	}
 
+	joinCode := utils.GenerateJoinCode(10)
+	err = circle.CreateCircleJoinCode(joinCode)
+
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"detail": "circle created but join code generation failed",
+		})
+	}
+
 	return c.Status(fiber.StatusOK).JSON(fiber.Map{
-		"detail": "circle created successfully",
+		"detail":    "circle created successfully",
+		"circle_id": circle.CircleId,
+		"join_code": joinCode,
 	})
 }
 
