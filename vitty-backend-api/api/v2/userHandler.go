@@ -19,7 +19,7 @@ import (
 	"gorm.io/gorm"
 )
 
-func userHandler(api fiber.Router) {
+func UserHandler(api fiber.Router) {
 	group := api.Group("/users")
 	group.Use(middleware.JWTAuthMiddleware)
 	group.Get("/", getUsers)

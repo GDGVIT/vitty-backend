@@ -12,7 +12,7 @@ import (
 	"gorm.io/gorm/clause"
 )
 
-func friendHandler(api fiber.Router) {
+func FriendHandler(api fiber.Router) {
 	requestGroup := api.Group("/requests")
 	requestGroup.Use(middleware.JWTAuthMiddleware)
 	requestGroup.Get("/", getFriendRequests)

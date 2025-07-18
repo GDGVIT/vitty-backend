@@ -10,7 +10,7 @@ import (
 	"gorm.io/gorm"
 )
 
-func timetableHandler(app fiber.Router) {
+func TimetableHandler(app fiber.Router) {
 	group := app.Group("/timetable")
 	group.Post("/parse", parseTimetable)
 	group.Use(middleware.JWTAuthMiddleware)

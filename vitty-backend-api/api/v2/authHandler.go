@@ -13,7 +13,7 @@ import (
 	"google.golang.org/api/idtoken"
 )
 
-func authHandler(api fiber.Router) {
+func AuthHandler(api fiber.Router) {
 	group := api.Group("/auth")
 	group.Post("/check-username", checkUsernameValidity)
 	group.Post("/check-user-exists", checkUserExists)
