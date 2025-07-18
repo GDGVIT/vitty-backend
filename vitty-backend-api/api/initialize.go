@@ -5,6 +5,7 @@ import (
 
 	v1 "github.com/GDGVIT/vitty-backend/vitty-backend-api/api/v1"
 	v2 "github.com/GDGVIT/vitty-backend/vitty-backend-api/api/v2"
+	v3 "github.com/GDGVIT/vitty-backend/vitty-backend-api/api/v3"
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cors"
 	"github.com/gofiber/fiber/v2/middleware/logger"
@@ -42,6 +43,7 @@ func NewWebApi() *fiber.App {
 	api := fiberApp.Group("/api")
 	v1.V1Handler(api)
 	v2.V2Handler(api)
+	v3.V3Handler(api)
 
 	return fiberApp
 }
