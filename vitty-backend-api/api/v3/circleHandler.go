@@ -2,6 +2,7 @@ package v3
 
 import (
 	"errors"
+	"fmt"
 	"log"
 
 	"github.com/GDGVIT/vitty-backend/vitty-backend-api/api/middleware"
@@ -21,7 +22,7 @@ func circleHandler(api fiber.Router) {
 	group.Get("/requests/received", getReceivedCircleRequests)
 	group.Get("/requests/sent", getSentCircleRequests)
 	group.Post("/create/:circleName", createCircle)
-	group.Post("/sendRequest/:circleId/:username", sendCircleRequestToUser)
+	group.Post("/sendRequest/:circleId", sendCircleRequestsToUsers)
 	group.Post("/:circleId/generateJoinCode", generateCircleJoinCode)
 	group.Post("/acceptRequest/:circleId", acceptCircleRequest)
 	group.Post("/join", joinCircleByCode)
@@ -291,13 +292,26 @@ func createCircle(c *fiber.Ctx) error {
 	})
 }
 
-func sendCircleRequestToUser(c *fiber.Ctx) error {
+func sendCircleRequestsToUsers(c *fiber.Ctx) error {
+	type UsernamesPayload struct {
+		Usernames []string `json:"usernames"`
+	}
+
 	var circleRequest models.CircleRequest
 	var usersCirclesJoin models.UsersCirclesJoin
+	var addedRequestResponse []fiber.Map
+	var to_users_names UsernamesPayload
 
 	circleId := c.Params("circleId")
 	from_user := c.Locals("user").(models.User).Username
-	to_user := c.Params("username")
+
+	err := c.BodyParser(&to_users_names)
+
+	if err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"error": "invalid request",
+		})
+	}
 
 	usersCirclesJoin.CID = circleId
 	usersCirclesJoin.Uname = from_user
@@ -325,23 +339,38 @@ func sendCircleRequestToUser(c *fiber.Ctx) error {
 
 	circleRequest.CID = circleId
 	circleRequest.FromUsername = from_user
-	circleRequest.ToUsername = to_user
 
-	err = circleRequest.CreateRequest()
-	if err != nil {
-		if errors.Is(err, gorm.ErrDuplicatedKey) {
-			return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-				"detail": "request pending",
-			})
+	fmt.Print(to_users_names.Usernames)
+	for _, username := range to_users_names.Usernames {
+		fmt.Print(username)
+		circleRequest.ToUsername = username
+		err = circleRequest.CreateRequest()
+
+		if err != nil {
+			if errors.Is(err, gorm.ErrDuplicatedKey) {
+				duplicateRequest := fiber.Map{
+					"username":       username,
+					"request_status": "pending",
+				}
+				addedRequestResponse = append(addedRequestResponse, duplicateRequest)
+			} else {
+				log.Println(err)
+				return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+					"detail": "requests not sent",
+				})
+			}
+		} else {
+			addedRequest := fiber.Map{
+				"username":       username,
+				"request_status": "added",
+			}
+			addedRequestResponse = append(addedRequestResponse, addedRequest)
 		}
-		log.Println(err)
-		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
-			"detail": "request not sent",
-		})
+
 	}
 
 	return c.Status(fiber.StatusOK).JSON(fiber.Map{
-		"detail": "request sent successfully",
+		"data": addedRequestResponse,
 	})
 }
 
