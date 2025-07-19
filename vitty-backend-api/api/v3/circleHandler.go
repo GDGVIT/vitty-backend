@@ -21,7 +21,7 @@ func circleHandler(api fiber.Router) {
 	group.Get("/leisure/:circleId", getLeisureTime)
 	group.Get("/requests/received", getReceivedCircleRequests)
 	group.Get("/requests/sent", getSentCircleRequests)
-	group.Post("/create/:circleName", createCircle)
+	group.Post("/create", createCircle)
 	group.Post("/sendRequest/:circleId", sendCircleRequestsToUsers)
 	group.Post("/:circleId/generateJoinCode", generateCircleJoinCode)
 	group.Post("/acceptRequest/:circleId", acceptCircleRequest)
@@ -233,21 +233,35 @@ func getSentCircleRequests(c *fiber.Ctx) error {
 }
 
 func createCircle(c *fiber.Ctx) error {
+
+	type CreateCircleRequest struct {
+		CricleName string `json:"circleName"`
+	}
+
 	var circle models.Circles
 	var user_circle models.UsersCirclesJoin
+	var createCircleRequest CreateCircleRequest
 
-	circleName := c.Params("circleName")
+	err := c.BodyParser(&createCircleRequest)
+
+	if err != nil {
+		log.Println(err)
+		return c.Status(fiber.ErrBadRequest.Code).JSON(fiber.Map{
+			"detail": "Bad request body",
+		})
+	}
+
 	username := c.Locals("user").(models.User).Username
 
-	if circleName == "" {
+	if createCircleRequest.CricleName == "" {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.ErrBadRequest)
 	} else {
 		circle.CircleId = utils.UUIDWithPrefix("circle")
-		circle.CircleName = circleName
+		circle.CircleName = createCircleRequest.CricleName
 		circle.Uname = username
 	}
 
-	err := circle.CreateCircle()
+	err = circle.CreateCircle()
 	if err != nil {
 		if errors.Is(err, gorm.ErrDuplicatedKey) {
 			return c.Status(fiber.StatusConflict).JSON(fiber.Map{
