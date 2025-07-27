@@ -11,3 +11,12 @@ func FriendRequestsSerializer(friend_requests []models.FriendRequest, request_us
 	}
 	return friend_requests_list
 }
+
+func ActiveFriendsSerializer(userFriends *[]models.UserFriends) []string {
+	var activeFriends []string
+
+	for _, userFriend := range *userFriends {
+		activeFriends = append(activeFriends, userFriend.FriendUsername)
+	}
+	return activeFriends
+}
