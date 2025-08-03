@@ -13,10 +13,10 @@ type UserFriends struct {
 	UpdatedAt      *time.Time `gorm:"default:CURRENT_TIMESTAMP"`
 }
 
-func (uf *UserFriends) GetActiveFriends(username string) ([]UserFriends, error) {
+func (uf *UserFriends) GetFriendsGhostStatus(username string) ([]UserFriends, error) {
 	var userFriends []UserFriends
 
-	err := database.DB.Where("user_username = ? AND hide = false", username).Find(&userFriends).Error
+	err := database.DB.Where("user_username = ?", username).Find(&userFriends).Error
 
 	return userFriends, err
 }

@@ -22,7 +22,7 @@ func FriendHandler(api fiber.Router) {
 
 	friendGroup := api.Group("/friends")
 	friendGroup.Use(middleware.JWTAuthMiddleware)
-	friendGroup.Get("/active", getActiveFriends)
+	friendGroup.Get("/active", getFriendsGhostStatus)
 	friendGroup.Get("/:username", getFriends)
 	friendGroup.Delete("/:username", removeFriend)
 	friendGroup.Post("/ghost/:username", becomeGhost)
@@ -181,11 +181,11 @@ func getFriends(c *fiber.Ctx) error {
 	})
 }
 
-func getActiveFriends(c *fiber.Ctx) error {
+func getFriendsGhostStatus(c *fiber.Ctx) error {
 	var userFriend models.UserFriends
 
 	request_user := c.Locals("user").(models.User)
-	userFriends, err := userFriend.GetActiveFriends(request_user.Username)
+	userFriends, err := userFriend.GetFriendsGhostStatus(request_user.Username)
 	if err != nil {
 		log.Default().Println(err)
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
